@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SliderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::resource('products',ProductController::class);
+Route::post('products/add', [ProductController::class, 'create']);
+// Route::put('products/update/{id}', [ProductController::class, 'update']);
+Route::resource('slider',SliderController::class);
