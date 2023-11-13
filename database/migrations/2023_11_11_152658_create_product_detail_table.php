@@ -15,8 +15,11 @@ return new class extends Migration
     {
         Schema::create('product_detail', function (Blueprint $table) {
             $table->id('product_detail_id');
-            $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->unsignedBigInteger('product_id')->index();
+            $table->foreign('product_id')
+                ->references('product_id')
+                ->on('products')
+                ->onDelete('cascade');
             $table->string('product_cpu');
             $table->string('product_ram');
             $table->string('hard_drive');

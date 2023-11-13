@@ -21,6 +21,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::resource('products',ProductController::class);
-Route::post('products/add', [ProductController::class, 'create']);
+Route::post('products', [ProductController::class, 'create']);
 // Route::put('products/update/{id}', [ProductController::class, 'update']);
 Route::resource('slider',SliderController::class);
