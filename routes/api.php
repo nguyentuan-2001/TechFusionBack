@@ -20,10 +20,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::resource('products',ProductController::class);
-Route::post('products', [ProductController::class, 'store']);
-// Route::put('products/update/{id}', [ProductController::class, 'update']);
-// Route::resource('slider',SliderController::class);
+Route::get('/products', [ProductController::class, 'index']);
+Route::post('/products', [ProductController::class, 'store']);
+Route::put('/products/{product}', [ProductController::class, 'update']);
+Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+
 
 // Danh sách tất cả sliders
 Route::get('/sliders', [SliderController::class, 'index']);

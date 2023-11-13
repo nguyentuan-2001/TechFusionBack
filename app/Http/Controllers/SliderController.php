@@ -106,11 +106,14 @@ class SliderController extends Controller
      */
     public function destroy(Slider $slider)
     {
-        // Xóa slider cụ thể
-        $slider->delete();
+        if ($slider) {
+            $slider->delete();
 
-        // Có thể thêm thông báo hoặc chuyển hướng ở đây nếu cần
-
-        return response()->json(null, 204);
+            // Trả về phản hồi với thông báo
+            return response()->json(['message' => 'Slider deleted successfully'], 200);
+        } else {
+            // Trả về phản hồi nếu slider không tồn tại
+            return response()->json(['message' => 'Slider not found'], 404);
+        }
     }
 }

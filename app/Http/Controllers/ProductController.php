@@ -52,34 +52,33 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-{
-    // Validation rules
-    $rules = [
-        'category_id' => 'required|exists:categories,category_id',
-        'product_sale' => 'required|numeric',
-        'product_name' => 'required|string|max:255',
-        'product_price' => 'required|numeric',
-        'product_content' => 'required|string',
-        'product_image' => 'required|string',
-        'product_status' => 'required|in:1,0', 
-    ];
+    {
+        // Validation rules
+        $rules = [
+            'category_id' => 'required|exists:categories,category_id',
+            'product_sale' => 'numeric',
+            'product_name' => 'required|string|max:255',
+            'product_price' => 'required|numeric',
+            'product_content' => 'string',
+            'product_image' => 'required|string',
+            'product_status' => 'required|in:1,0', 
+        ];
 
-    // Validate the request data
-    $request->validate($rules);
+        $request->validate($rules);
 
-    // Create the product if validation passes
-    $product = Product::create([
-        'category_id' => $request->input('category_id'),
-        'product_sale' => $request->input('product_sale'),
-        'product_name' => $request->input('product_name'),
-        'product_price' => $request->input('product_price'),
-        'product_content' => $request->input('product_content'),
-        'product_image' => $request->input('product_image'),
-        'product_status' => $request->input('product_status'),
-    ]);
+        // Create the product if validation passes
+        $product = Product::create([
+            'category_id' => $request->input('category_id'),
+            'product_sale' => $request->input('product_sale'),
+            'product_name' => $request->input('product_name'),
+            'product_price' => $request->input('product_price'),
+            'product_content' => $request->input('product_content'),
+            'product_image' => $request->input('product_image'),
+            'product_status' => $request->input('product_status'),
+        ]);
 
-    return response()->json(['message' => 'Product created successfully', 'data' => $product]);
-}
+        return response()->json(['message' => 'Product created successfully', 'data' => $product]);
+    }
 
     /**
      * Display the specified resource.
@@ -89,7 +88,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        return response()->json($slider);
     }
 
     /**
@@ -112,8 +111,37 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        // Kiểm tra xem sản phẩm tồn tại không
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        // Validate dữ liệu từ request
+        $request->validate([
+            'category_id' => 'required|exists:categories,category_id',
+            'product_sale' => 'numeric',
+            'product_name' => 'required|string',
+            'product_price' => 'required|numeric',
+            'product_content' => 'string',
+            'product_image' => 'required|string',
+            'product_status' => ['required', Rule::in(['1', '0'])],
+        ]);
+
+        // Cập nhật thông tin sản phẩm
+        $product->update([
+            'category_id' => $request->input('category_id'),
+            'product_sale' => $request->input('product_sale'),
+            'product_name' => $request->input('product_name'),
+            'product_price' => $request->input('product_price'),
+            'product_content' => $request->input('product_content'),
+            'product_image' => $request->input('product_image'),
+            'product_status' => $request->input('product_status'),
+        ]);
+
+        // Trả về phản hồi với thông báo
+        return response()->json(['message' => 'Product updated successfully', 'data' => $product]);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -123,6 +151,21 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        // Lấy product_id của sản phẩm
+        $productId = $product->product_id;
+
+        // Xóa tất cả các bản ghi liên quan trong các bảng
+        $product->productDetail()->delete();
+        //Thêm các bảng liên quan khác nếu có
+
+        // Xóa sản phẩm chính
+        $product->delete();
+
+        // Trả về phản hồi với thông báo
+        return response()->json(['message' => 'Product and related records deleted successfully'], 200);
     }
 }
