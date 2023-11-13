@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Slider;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class SliderController extends Controller
 {
@@ -14,7 +15,7 @@ class SliderController extends Controller
      */
     public function index()
     {
-        return Slider::select('slider_name','slider_image','slider_status')->get();
+        return Slider::select('slider_name', 'slider_image', 'slider_status')->get();
     }
 
     /**
@@ -24,7 +25,7 @@ class SliderController extends Controller
      */
     public function create()
     {
-        //
+        // Hiển thị biểu mẫu tạo mới (nếu cần)
     }
 
     /**
@@ -35,7 +36,19 @@ class SliderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate dữ liệu đầu vào
+        $validatedData = $request->validate([
+            'slider_name' => 'required|string|max:255',
+            'slider_image' => 'required|url',
+            'slider_status' => 'required|in:1,0',
+        ]);
+
+        // Lưu slider mới vào cơ sở dữ liệu
+        $slider = Slider::create($validatedData);
+
+        // Có thể thêm thông báo hoặc chuyển hướng ở đây nếu cần
+
+        return response()->json($slider, 201);
     }
 
     /**
@@ -46,7 +59,8 @@ class SliderController extends Controller
      */
     public function show(Slider $slider)
     {
-        //
+        // Hiển thị chi tiết của slider cụ thể
+        return response()->json($slider);
     }
 
     /**
@@ -57,7 +71,7 @@ class SliderController extends Controller
      */
     public function edit(Slider $slider)
     {
-        //
+        // Hiển thị biểu mẫu chỉnh sửa (nếu cần)
     }
 
     /**
@@ -69,7 +83,19 @@ class SliderController extends Controller
      */
     public function update(Request $request, Slider $slider)
     {
-        //
+        // Validate dữ liệu đầu vào
+        $validatedData = $request->validate([
+            'slider_name' => 'required|string|max:255',
+            'slider_image' => 'required|url',
+            'slider_status' => ['required', Rule::in(['1', '0'])],
+        ]);
+
+        // Cập nhật thông tin của slider
+        $slider->update($validatedData);
+
+        // Có thể thêm thông báo hoặc chuyển hướng ở đây nếu cần
+
+        return response()->json($slider, 200);
     }
 
     /**
@@ -80,6 +106,11 @@ class SliderController extends Controller
      */
     public function destroy(Slider $slider)
     {
-        //
+        // Xóa slider cụ thể
+        $slider->delete();
+
+        // Có thể thêm thông báo hoặc chuyển hướng ở đây nếu cần
+
+        return response()->json(null, 204);
     }
 }

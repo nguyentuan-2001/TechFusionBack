@@ -14,7 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('sliders', function (Blueprint $table) {
-            $table->id();
+            $table->id('slider_id');
+            $table->text('slider_name');
+            $table->text('slider_image');
+            $table->integer('slider_status');
             $table->timestamps();
         });
     }

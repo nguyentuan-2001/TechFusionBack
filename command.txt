@@ -1,0 +1,2 @@
+reset db: php artisan migrate:fresh
+create CM: php artisan make:controller ItemController --resource --model=Item

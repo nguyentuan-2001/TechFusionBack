@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductDetail;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -39,8 +40,34 @@ class ProductController extends Controller
     // {
     //     // return Product::create($request -> all());
     // }
-    public function create(Request $request)
+    public function create()
+    {
+       
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
 {
+    // Validation rules
+    $rules = [
+        'category_id' => 'required|exists:categories,category_id',
+        'product_sale' => 'required|numeric',
+        'product_name' => 'required|string|max:255',
+        'product_price' => 'required|numeric',
+        'product_content' => 'required|string',
+        'product_image' => 'required|string',
+        'product_status' => 'required|in:1,0', 
+    ];
+
+    // Validate the request data
+    $request->validate($rules);
+
+    // Create the product if validation passes
     $product = Product::create([
         'category_id' => $request->input('category_id'),
         'product_sale' => $request->input('product_sale'),
@@ -53,34 +80,6 @@ class ProductController extends Controller
 
     return response()->json(['message' => 'Product created successfully', 'data' => $product]);
 }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //  $validatedData = $request->validate([
-        //     'product_name' => 'required|string|max:255',
-        //     'product_content' => 'required|string',
-        //     'product_price' => 'required|numeric',
-        //     'product_sale' => 'numeric',
-        //     'product_image' => 'required|string',
-        //     'product_status' => 'required|in:1,0',
-        // ]);
-
-        // // Create a new product instance
-        // $product = Product::create($validatedData);
-
-        // // If you have a ProductDetail model and a relationship set up in the Product model, you can also create a product detail here
-        // // $productDetail = new ProductDetail(['additional_field' => 'value']);
-        // // $product->productDetail()->save($productDetail);
-
-        // // Optionally, you can return the created product as a response
-        // return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
-    }
 
     /**
      * Display the specified resource.

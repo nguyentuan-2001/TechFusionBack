@@ -21,6 +21,27 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::resource('products',ProductController::class);
-Route::post('products', [ProductController::class, 'create']);
+Route::post('products', [ProductController::class, 'store']);
 // Route::put('products/update/{id}', [ProductController::class, 'update']);
-Route::resource('slider',SliderController::class);
+// Route::resource('slider',SliderController::class);
+
+// Danh sách tất cả sliders
+Route::get('/sliders', [SliderController::class, 'index']);
+
+// Hiển thị biểu mẫu tạo slider mới
+Route::get('/sliders/create', [SliderController::class, 'create']);
+
+// Lưu slider mới
+Route::post('/sliders', [SliderController::class, 'store']);
+
+// Hiển thị chi tiết của một slider cụ thể
+Route::get('/sliders/{slider}', [SliderController::class, 'show']);
+
+// Hiển thị biểu mẫu chỉnh sửa một slider cụ thể
+Route::get('/sliders/{slider}/edit', [SliderController::class, 'edit']);
+
+// Cập nhật thông tin của một slider cụ thể
+Route::put('/sliders/{slider}', [SliderController::class, 'update']);
+
+// Xóa một slider cụ thể
+Route::delete('/sliders/{slider}', [SliderController::class, 'destroy']);
