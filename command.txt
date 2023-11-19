@@ -1,4 +1,9 @@
 reset db: 
 - php artisan migrate:fresh
 - php artisan migrate:refresh
-create CM: php artisan make:controller ItemController --resource --model=Item
+create CM: 
+- php artisan make:controller ItemController --resource --model=Item
+
+create table: 
+- php artisan make:migration create_ten_bang_table
+- php artisan migrate

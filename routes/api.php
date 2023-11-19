@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SliderController;
+use App\Http\Controllers\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Product
 Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products', [ProductController::class, 'store']);
 Route::put('/products/{product}', [ProductController::class, 'update']);
@@ -46,3 +48,6 @@ Route::put('/sliders/{slider}', [SliderController::class, 'update']);
 
 // Xóa một slider cụ thể
 Route::delete('/sliders/{slider}', [SliderController::class, 'destroy']);
+
+// Order
+Route::post('/order', [OrderController::class, 'store']);
