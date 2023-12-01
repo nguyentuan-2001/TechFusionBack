@@ -28,6 +28,9 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products', [ProductController::class, 'store']);
 Route::put('/products/{product}', [ProductController::class, 'update']);
 Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+Route::get('/products/search', [ProductController::class, 'searchByName']);
+Route::get('/products/{category_id}', [ProductController::class, 'getProductsByCategory']);
+Route::get('/products/detail/{product_id}', [ProductController::class, 'getProductDetail']);
 
 
 // Danh sách tất cả sliders
@@ -55,8 +58,16 @@ Route::delete('/sliders/{slider}', [SliderController::class, 'destroy']);
 Route::post('/order', [OrderController::class, 'store']);
 
 //Cart
-Route::get('/carts/{customer_id}', [CartController::class, 'index']);
+// Route::get('/carts/{customer_id}', [CartController::class, 'index']);
 Route::post('/carts', [CartController::class, 'store']);
+Route::get('/cart/{customer_id}', [CartController::class, 'getCartProducts']);
+Route::delete('/cart/customer/{customer_id}/product/{product_id}', [CartController::class, 'deleteProductFromCart']);
+Route::delete('/cart/customer/{customer_id}', [CartController::class, 'deleteAllProductsFromCart']);
+Route::put('/cart/customer/{customer_id}/product/{product_id}', [CartController::class, 'update']);
 
 // Customer
 Route::post('/customer', [CustomerController::class, 'store']);
+Route::post('/customer/login', [CustomerController::class, 'login']);
+// Route::get('/customer', [CustomerController::class, 'index']);
+Route::put('/customer/{customer}', [CustomerController::class, 'update']);
+Route::delete('/customer/{customer}', [CustomerController::class, 'destroy']);

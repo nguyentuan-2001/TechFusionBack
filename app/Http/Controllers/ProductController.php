@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductDetail;
 use Illuminate\Http\Request;
@@ -168,4 +169,65 @@ class ProductController extends Controller
         // Trả về phản hồi với thông báo
         return response()->json(['message' => 'Product and related records deleted successfully'], 200);
     }
+    
+    public function searchByName(Request $request)
+    {
+        try {
+            // Validate the search query
+            $request->validate([
+                'product_name' => 'required|string|max:255',
+            ]);
+    
+            $products = Product::where('product_name', 'like', '%' . $request->input('product_name') . '%')->get();
+    
+            if ($products->isEmpty()) {
+                return response()->json(['message' => 'No products found for the given search query', 'data' => []]);
+            }
+    
+            return response()->json(['data' => $products]);
+        } catch (\Exception $e) {
+            // Handle exceptions if any
+            return response()->json(['message' => 'Error searching products', 'error' => $e->getMessage()], 500);
+        }
+    }
+    
+    public function getProductsByCategory($category_id)
+    {
+        try {
+            // Validate the category ID
+            $category = Category::find($category_id);
+
+            if (!$category) {
+                return response()->json(['message' => 'Category not found'], 404);
+            }
+
+            // Get products associated with the category
+            $products = $category->products ?? collect();
+
+            if ($products->isEmpty()) {
+                return response()->json(['message' => 'No products found for the given category', 'data' => []]);
+            }
+
+            return response()->json(['data' => $products]);
+        } catch (\Exception $e) {
+            // Handle exceptions if any
+            return response()->json(['message' => 'Error retrieving products by category', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getProductDetail($product_id)
+    {
+        try {
+            $product = Product::with('productDetail')->findOrFail($product_id);
+
+            if (!$product) {
+                return response()->json(['message' => 'Product not found'], 404);
+            }
+    
+            return response()->json(['data' => $product]);
+        } catch (\Exception $e) {
+            return response()->json(['data' => []]);
+        }
+    }
+    
 }

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id('customer_id');
             $table->string('customer_name');
             $table->string('customer_password');
-            $table->integer('customer_phone');
-            $table->string('customer_token');
+            $table->integer('customer_phone')->nullable();
+            $table->string('customer_token')->nullable();
             $table->timestamps();
         });
     }

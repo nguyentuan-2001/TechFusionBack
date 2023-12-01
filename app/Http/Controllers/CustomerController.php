@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Customers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class CustomerController extends Controller
 {
@@ -15,7 +17,8 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        //
+        $customer = Customers::get();
+        return response()->json($customer);
     }
 
     /**
@@ -36,22 +39,33 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the request data
         $request->validate([
             'customer_name' => 'required|string',
             'customer_password' => 'required|string',
         ]);
-
-        $customerToken = Str::random(10);
-
+    
+        // Create a new customer
         $customer = Customers::create([
             'customer_name' => $request->input('customer_name'),
-            'customer_password' => $request->input('customer_password'),
-            'customer_token' => $customerToken,
+            'customer_password' => Hash::make($request->input('customer_password')),
         ]);
-
-        return response()->json(['message' => 'Customer created successfully', 'data' => $customer], 201);
+    
+        // Generate a personal access token
+        $token = $customer->createToken('customer-access-token')->plainTextToken;
+    
+        // Update the customer record with the generated token
+        $customer->update(['customer_token' => $token]);
+    
+        // Return a JSON response with the customer data and access token
+        return response()->json([
+            'message' => 'Customer created successfully',
+            'data' => [
+                'customer' => $customer,
+                'access_token' => $token,
+            ],
+        ], 201);
     }
-
     /**
      * Display the specified resource.
      *
@@ -81,9 +95,29 @@ class CustomerController extends Controller
      * @param  \App\Models\Customers  $customers
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Customers $customers)
+    public function update(Request $request, Customers $customer)
     {
-        //
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_password' => 'required|string',
+            'customer_phone' => 'nullable|numeric',
+        ]);
+
+        if (!$customer) {
+            return response()->json(['message' => 'Customer not found'], 404);
+        }
+
+        try {
+            $customer->update([
+                'customer_name' => $request->input('customer_name'),
+                'customer_password' => Hash::make($request->input('customer_password')),
+                'customer_phone' => $request->input('customer_phone') ?? null,
+            ]);
+        
+            return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error updating customer', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -94,6 +128,44 @@ class CustomerController extends Controller
      */
     public function destroy(Customers $customers)
     {
-        //
+        if ($customers) {
+            $customers->delete();
+
+            // Trả về phản hồi với thông báo
+            return response()->json(['message' => 'customers deleted successfully'], 200);
+        } else {
+            // Trả về phản hồi nếu customers không tồn tại
+            return response()->json(['message' => 'customers not found'], 404);
+        }
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'customer_name' => 'required|string',
+            'customer_password' => 'required|string',
+        ]);
+    
+        try {
+            // Attempt to authenticate the customer
+            $customer = Customers::where('customer_name', $request->input('customer_name'))->firstOrFail();
+    
+            if (!Hash::check($request->input('customer_password'), $customer->customer_password)) {
+                // Authentication failed
+                throw new \Exception('The provided credentials are incorrect.');
+            }
+
+            return response()->json([
+                'message' => 'Customer authenticated successfully',
+                'data' => [
+                    'customer' => $customer,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Authentication failed',
+                'data' => [],
+            ]);
+        }
     }
 }
