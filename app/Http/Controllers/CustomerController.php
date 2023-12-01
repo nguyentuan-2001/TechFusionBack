@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CustomerController extends Controller
 {
@@ -35,7 +36,20 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'customer_name' => 'required|string',
+            'customer_password' => 'required|string',
+        ]);
+
+        $customerToken = Str::random(10);
+
+        $customer = Customers::create([
+            'customer_name' => $request->input('customer_name'),
+            'customer_password' => $request->input('customer_password'),
+            'customer_token' => $customerToken,
+        ]);
+
+        return response()->json(['message' => 'Customer created successfully', 'data' => $customer], 201);
     }
 
     /**

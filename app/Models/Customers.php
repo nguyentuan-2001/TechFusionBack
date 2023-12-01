@@ -14,5 +14,5 @@ class Customers extends Model
     protected $primaryKey = 'customer_id';
     protected $table = 'customers';
 
-    protected $hidden = ['created_at', 'updated_at'];
+    // protected $hidden = ['created_at', 'updated_at'];
 }

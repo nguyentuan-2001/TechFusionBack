@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CustomerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,3 +53,10 @@ Route::delete('/sliders/{slider}', [SliderController::class, 'destroy']);
 
 // Order
 Route::post('/order', [OrderController::class, 'store']);
+
+//Cart
+Route::get('/carts/{customer_id}', [CartController::class, 'index']);
+Route::post('/carts', [CartController::class, 'store']);
+
+// Customer
+Route::post('/customer', [CustomerController::class, 'store']);
