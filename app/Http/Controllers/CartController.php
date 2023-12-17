@@ -130,13 +130,12 @@ class CartController extends Controller
 
     public function getCartProducts($customerId)
     {
-        // Lấy thông tin giỏ hàng của khách hàng theo customer_id
         $cartItems = Cart::with(['productDetail' => function ($query) {
             $query->select('product_id', 'product_name', 'product_price', 'product_image','product_inventory_quantity');
         }])->where('customer_id', $customerId)->get(['customer_id', 'product_id', 'product_quantity']);
 
         if ($cartItems->isEmpty()) {
-            return response()->json(['message' => 'Cart not found'], 404);
+            return response()->json(['message' => 'Cart is empty', 'data' => []]);
         }
         return response()->json(['data' => $cartItems]);
     }

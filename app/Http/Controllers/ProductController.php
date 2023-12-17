@@ -62,6 +62,7 @@ class ProductController extends Controller
             'product_price' => 'required|numeric',
             'product_content' => 'string',
             'product_image' => 'required|string',
+            'product_inventory_quantity'=>'numeric',
             'product_status' => 'required|in:1,0', 
         ];
 
@@ -75,6 +76,7 @@ class ProductController extends Controller
             'product_price' => $request->input('product_price'),
             'product_content' => $request->input('product_content'),
             'product_image' => $request->input('product_image'),
+            'product_inventory_quantity'=> $request->input('product_inventory_quantity'),
             'product_status' => $request->input('product_status'),
         ]);
 
@@ -125,6 +127,7 @@ class ProductController extends Controller
             'product_price' => 'required|numeric',
             'product_content' => 'string',
             'product_image' => 'required|string',
+            'product_inventory_quantity'=> 'numeric',
             'product_status' => ['required', Rule::in(['1', '0'])],
         ]);
 
@@ -136,6 +139,7 @@ class ProductController extends Controller
             'product_price' => $request->input('product_price'),
             'product_content' => $request->input('product_content'),
             'product_image' => $request->input('product_image'),
+            'product_inventory_quantity'=>$request->input('product_inventory_quantity'),
             'product_status' => $request->input('product_status'),
         ]);
 

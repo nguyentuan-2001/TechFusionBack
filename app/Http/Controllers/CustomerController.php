@@ -155,10 +155,13 @@ class CustomerController extends Controller
                 throw new \Exception('The provided credentials are incorrect.');
             }
 
+            $token = $customer->createToken('customer-access-token')->plainTextToken;
+
             return response()->json([
                 'message' => 'Customer authenticated successfully',
                 'data' => [
                     'customer' => $customer,
+                    'access_token' => $token,
                 ],
             ]);
         } catch (\Exception $e) {
