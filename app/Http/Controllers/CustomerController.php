@@ -44,19 +44,27 @@ class CustomerController extends Controller
             'customer_name' => 'required|string',
             'customer_password' => 'required|string',
         ]);
-    
+
+        // Check if customer_name already exists
+        $existingCustomer = Customers::where('customer_name', $request->input('customer_name'))->first();
+
+        if ($existingCustomer) {
+            // If customer_name exists, return an error response
+            throw ValidationException::withMessages(['customer_name' => 'Tên khách hàng đã tồn tại trong hệ thống.']);
+        }
+
         // Create a new customer
         $customer = Customers::create([
             'customer_name' => $request->input('customer_name'),
             'customer_password' => Hash::make($request->input('customer_password')),
         ]);
-    
+
         // Generate a personal access token
         $token = $customer->createToken('customer-access-token')->plainTextToken;
-    
+
         // Update the customer record with the generated token
         $customer->update(['customer_token' => $token]);
-    
+
         // Return a JSON response with the customer data and access token
         return response()->json([
             'message' => 'Customer created successfully',
@@ -66,6 +74,7 @@ class CustomerController extends Controller
             ],
         ], 201);
     }
+
     /**
      * Display the specified resource.
      *

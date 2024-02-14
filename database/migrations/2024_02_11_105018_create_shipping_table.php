@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id('category_id');
-            $table->string('category_name');
-            $table->text('category_desc');
-            $table->enum('category_type', ['1', '2', '3', '4'])->default('1');
-            $table->integer('category_status');
+        Schema::create('shipping', function (Blueprint $table) {
+            $table->id('shipping_id');
+            $table->string('shipping_name');
+            $table->string('shipping_address');
+            $table->string('shipping_phone');
+            $table->text('shipping_notes')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('shipping');
     }
 };

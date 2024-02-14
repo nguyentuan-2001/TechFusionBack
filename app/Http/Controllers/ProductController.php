@@ -15,10 +15,14 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // lấy all
-        $products = Product::with('productDetail')->get();
+        // $products = Product::with('productDetail')->get();
+        // return response()->json($products);
+        $perPage = 16;
+        $products = Product::with('productDetail')->paginate($perPage);
+
         return response()->json($products);
 
         // lấy 1 bảng
@@ -195,7 +199,7 @@ class ProductController extends Controller
         }
     }
     
-    public function getProductsByCategory($category_id)
+    public function getProductsByCategory(Request $request, $category_id)
     {
         try {
             // Validate the category ID
@@ -205,8 +209,13 @@ class ProductController extends Controller
                 return response()->json(['message' => 'Category not found'], 404);
             }
 
-            // Get products associated with the category
-            $products = $category->products ?? collect();
+            $perPage = $request->input('perPage', 16); // Sử dụng giá trị mặc định là 16 nếu không có giá trị
+
+            // Lấy trang hiện tại từ tham số 'page' trong URL, mặc định là 1 nếu không có
+            $currentPage = $request->input('page', 1);
+
+            // Lấy các sản phẩm liên quan đến danh mục và phân trang kết quả
+            $products = $category->products()->paginate($perPage, ['*'], 'page', $currentPage);
 
             if ($products->isEmpty()) {
                 return response()->json(['message' => 'No products found for the given category', 'data' => []]);
@@ -233,5 +242,31 @@ class ProductController extends Controller
             return response()->json(['data' => []]);
         }
     }
-    
+
+    public function getFourProductsByCategory(Request $request, $category_id, $product_id)
+    {
+        try {
+            // Validate the category ID
+            $category = Category::find($category_id);
+
+            if (!$category) {
+                return response()->json(['message' => 'Category not found'], 404);
+            }
+
+            // Exclude the provided product_id from the query and limit to 4 results
+            $products = $category->products()
+                ->where('product_id', '!=', $product_id)
+                ->limit(4)
+                ->get();
+
+            if ($products->isEmpty()) {
+                return response()->json(['message' => 'No products found for the given category'], 404);
+            }
+
+            return response()->json(['data' => $products]);
+        } catch (\Exception $e) {
+            // Handle exceptions if any
+            return response()->json(['message' => 'Error retrieving products by category', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

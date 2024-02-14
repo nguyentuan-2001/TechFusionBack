@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Shipping;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -46,10 +47,21 @@ class OrderController extends Controller
 
         $request->validate($rules);
 
+        // add data in Shipping table
+        $shippingInfo = $request->input('shipping_info');
+        $shipping = Shipping::create([
+            'shipping_name' => $shippingInfo['shipping_name'],
+            'shipping_address' => $shippingInfo['shipping_address'],
+            'shipping_phone' => $shippingInfo['shipping_phone'],
+            'shipping_notes' => $shippingInfo['shipping_notes'],
+        ]);
+
+        $shipping_id = $shipping->shipping_id;
+
         // Create the product if validation passes
         $order = Order::create([
             'customer_id' => $request->input('customer_id'),
-            'shipping_id' => $request->input('shipping_id'),
+            'shipping_id' => $shipping_id,
             'payment_id' => $request->input('payment_id'),
             'order_total' => $request->input('order_total'),
             'order_status' => $request->input('order_status'),

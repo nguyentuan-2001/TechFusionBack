@@ -4,6 +4,9 @@ reset db:
 create CM: 
 - php artisan make:controller ItemController --resource --model=Item
 
+create controller:
+- php artisan make:controller CategoryController --resource
+
 create table: 
 - php artisan make:migration create_ten_bang_table
 - php artisan migrate

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class CartController extends Controller
 {
@@ -90,32 +91,50 @@ class CartController extends Controller
      * @param  \App\Models\Cart  $cart
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $customer_id, $product_id)
+    public function update(Request $request, $customer_id)
     {
-        // Validate the request data
+        // Validate dữ liệu yêu cầu
         $request->validate([
-            'product_quantity' => 'required|numeric',
+            'product_update' => 'required|array',
         ]);
-    
-        // Find the cart item associated with the customer and product
-        $cart = Cart::where('customer_id', $customer_id)
-                    ->where('product_id', $product_id)
-                    ->first();
-    
-        // Check if the cart item exists
-        if (!$cart) {
-            return response()->json(['message' => 'Cart item not found'], 404);
+
+        // Chuyển đổi dữ liệu JSON thành mảng
+        $productUpdates = $request->input('product_update');
+
+        foreach ($productUpdates as $productUpdate) {
+            // Validate dữ liệu của mỗi sản phẩm
+            $validator = Validator::make($productUpdate, [
+                'product_id' => 'required|numeric',
+                'product_quantity' => 'required|numeric',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['message' => 'Dữ liệu sản phẩm không hợp lệ', 'errors' => $validator->errors()], 400);
+            }
+
+            // Tìm kiếm mục giỏ hàng liên quan đến khách hàng và sản phẩm
+            $cart = Cart::where('customer_id', $customer_id)
+                        ->where('product_id', $productUpdate['product_id'])
+                        ->first();
+
+            if ($cart) {
+                // Cập nhật mục giỏ hàng với số lượng sản phẩm mới
+                $cart->update([
+                    'product_quantity' => $productUpdate['product_quantity'],
+                ]);
+            } else {
+                // Tùy chọn: Tạo một mục giỏ hàng mới nếu sản phẩm chưa tồn tại trong giỏ hàng
+                Cart::create([
+                    'customer_id' => $customer_id,
+                    'product_id' => $productUpdate['product_id'],
+                    'product_quantity' => $productUpdate['product_quantity'],
+                ]);
+            }
         }
-    
-        // Update the cart item with the new product quantity
-        $cart->update([
-            'product_quantity' => $request->input('product_quantity'),
-        ]);
-    
-        // Optionally, you can return a response indicating success
-        return response()->json(['message' => 'Cart item updated successfully', 'data' => $cart]);
-    }    
-    
+
+        // Trả về thông báo thành công
+        return response()->json(['message' => 'Cập nhật mục giỏ hàng thành công']);
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -131,7 +150,7 @@ class CartController extends Controller
     public function getCartProducts($customerId)
     {
         $cartItems = Cart::with(['productDetail' => function ($query) {
-            $query->select('product_id', 'product_name', 'product_price', 'product_image','product_inventory_quantity');
+            $query->select('product_id', 'product_name', 'product_price', 'product_image','product_inventory_quantity', 'product_sale');
         }])->where('customer_id', $customerId)->get(['customer_id', 'product_id', 'product_quantity']);
 
         if ($cartItems->isEmpty()) {
