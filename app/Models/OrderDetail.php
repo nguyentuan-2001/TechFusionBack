@@ -14,6 +14,7 @@ class OrderDetail extends Model
     protected $primaryKey = 'order_detail_id';
  	protected $table = 'order_detail';
 
+	protected $hidden = ['created_at', 'updated_at'];
  	// public function product(){
  	// 	return $this->belongsTo('App\Models\Product','product_id');
  	// }

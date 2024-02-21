@@ -16,7 +16,13 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        $perPage = 16;
+        $orders = Order::with('orderDetail')->with('shipping')->paginate($perPage);
+        $responseData = [
+            'data' => $orders,
+        ];
+
+        return response()->json($responseData);
     }
 
     /**
@@ -115,7 +121,7 @@ class OrderController extends Controller
      */
     public function update(Request $request, Order $order)
     {
-        //
+        
     }
 
     /**

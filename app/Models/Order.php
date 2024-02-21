@@ -18,4 +18,8 @@ class Order extends Model
     {
         return $this->belongsTo(Shipping::class, 'shipping_id', 'shipping_id');
     }
+    public function orderDetail()
+    {
+        return $this->hasOne(OrderDetail::class, 'order_id', 'order_id');
+    }
 }
