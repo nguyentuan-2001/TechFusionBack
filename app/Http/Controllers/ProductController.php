@@ -70,7 +70,6 @@ class ProductController extends Controller
             'product_price' => 'required|numeric',
             'product_content' => 'string',
             'product_image' => 'required|string',
-            'product_inventory_quantity'=>'numeric',
             'product_status' => 'required|in:1,0', 
         ];
 
@@ -84,7 +83,6 @@ class ProductController extends Controller
             'product_price' => $request->input('product_price'),
             'product_content' => $request->input('product_content'),
             'product_image' => $request->input('product_image'),
-            'product_inventory_quantity'=> $request->input('product_inventory_quantity'),
             'product_status' => $request->input('product_status'),
         ]);
 
@@ -135,7 +133,6 @@ class ProductController extends Controller
             'product_price' => 'required|numeric',
             'product_content' => 'string',
             'product_image' => 'required|string',
-            'product_inventory_quantity'=> 'numeric',
             'product_status' => ['required', Rule::in(['1', '0'])],
         ]);
 
@@ -147,7 +144,6 @@ class ProductController extends Controller
             'product_price' => $request->input('product_price'),
             'product_content' => $request->input('product_content'),
             'product_image' => $request->input('product_image'),
-            'product_inventory_quantity'=>$request->input('product_inventory_quantity'),
             'product_status' => $request->input('product_status'),
         ]);
 
@@ -191,7 +187,7 @@ class ProductController extends Controller
                 'product_name' => 'required|string|max:255',
             ]);
     
-            $products = Product::where('product_name', 'like', '%' . $request->input('product_name') . '%')->get();
+            $products = Product::with('productColors')->where('product_name', 'like', '%' . $request->input('product_name') . '%')->get();
     
             if ($products->isEmpty()) {
                 return response()->json(['message' => 'No products found for the given search query', 'data' => []]);
@@ -220,7 +216,7 @@ class ProductController extends Controller
             $currentPage = $request->input('page', 1);
 
             // Lấy các sản phẩm liên quan đến danh mục và phân trang kết quả
-            $products = $category->products()->paginate($perPage, ['*'], 'page', $currentPage);
+            $products = $category->products()->with('productColors')->paginate($perPage, ['*'], 'page', $currentPage);
 
             if ($products->isEmpty()) {
                 return response()->json(['message' => 'No products found for the given category', 'data' => []]);

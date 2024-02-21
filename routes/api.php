@@ -10,6 +10,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +61,7 @@ Route::delete('/sliders/{slider}', [SliderController::class, 'destroy']);
 
 // Order
 Route::post('/order', [OrderController::class, 'store']);
+Route::get('/order', [OrderController::class, 'index']);
 
 //Cart
 // Route::get('/carts/{customer_id}', [CartController::class, 'index']);
@@ -89,3 +91,10 @@ Route::get('/get-wards/{districtId}', [AddressController::class, 'getWards']);
 Route::get('/galleries/{product_id}', [GalleryController::class, 'index']);
 Route::post('/galleries/multiple', [GalleryController::class, 'store']);
 Route::delete('/galleries/{gallery}', [GalleryController::class, 'destroy']);
+
+// Admin
+Route::post('/admin', [AdminController::class, 'store']);
+Route::post('/admin/login', [AdminController::class, 'login']);
+// // Route::get('/customer', [CustomerController::class, 'index']);
+// Route::put('/customer/{customer}', [CustomerController::class, 'update']);
+// Route::delete('/customer/{customer}', [CustomerController::class, 'destroy']);

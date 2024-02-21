@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Cart;
+use App\Models\Color;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -106,6 +107,7 @@ class CartController extends Controller
             // Validate dữ liệu của mỗi sản phẩm
             $validator = Validator::make($productUpdate, [
                 'product_id' => 'required|numeric',
+                'color_id' => 'required|numeric',
                 'product_quantity' => 'required|numeric',
             ]);
 
@@ -116,6 +118,7 @@ class CartController extends Controller
             // Tìm kiếm mục giỏ hàng liên quan đến khách hàng và sản phẩm
             $cart = Cart::where('customer_id', $customer_id)
                         ->where('product_id', $productUpdate['product_id'])
+                        ->where('color_id', $productUpdate['color_id'])
                         ->first();
 
             if ($cart) {
@@ -128,6 +131,7 @@ class CartController extends Controller
                 Cart::create([
                     'customer_id' => $customer_id,
                     'product_id' => $productUpdate['product_id'],
+                    'color_id' => $productUpdate['color_id'],
                     'product_quantity' => $productUpdate['product_quantity'],
                 ]);
             }
@@ -151,7 +155,7 @@ class CartController extends Controller
     // public function getCartProducts($customerId)
     // {
     //     $cartItems = Cart::with(['productDetail' => function ($query) {
-    //         $query->select('product_id', 'product_name', 'product_price', 'product_image','product_inventory_quantity', 'product_sale');
+    //         $query->select('product_id', 'product_name', 'product_price', 'product_image', 'product_sale');
     //     }])->where('customer_id', $customerId)->get(['customer_id', 'product_id','color_id', 'product_quantity']);
 
     //     if ($cartItems->isEmpty()) {
@@ -163,7 +167,7 @@ class CartController extends Controller
     {
         $cartItems = Cart::with([
             'productDetail' => function ($query) {
-                $query->select('product_id', 'product_name', 'product_price', 'product_image', 'product_inventory_quantity', 'product_sale');
+                $query->select('product_id', 'product_name', 'product_price', 'product_image', 'product_sale');
             },
             'productColors' => function ($query) {
                 $query->select('product_id', 'color_id', 'quantity');
@@ -173,8 +177,14 @@ class CartController extends Controller
         if ($cartItems->isEmpty()) {
             return response()->json(['message' => 'Cart is empty', 'data' => []]);
         }
+        $colors = Color::get();
 
-        return response()->json(['data' => $cartItems]);
+        $responseData = [
+            'data' => $cartItems,
+            'colors' => $colors,
+        ];
+
+        return response()->json($responseData);
     }
 
 
