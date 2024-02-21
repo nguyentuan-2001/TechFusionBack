@@ -9,6 +9,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\GalleryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,3 +84,8 @@ Route::get('/category', [CategoryController::class, 'index']);
 Route::get('/get-provinces', [AddressController::class, 'getProvinces']);
 Route::get('/get-districts/{provinceId}', [AddressController::class, 'getDistricts']);
 Route::get('/get-wards/{districtId}', [AddressController::class, 'getWards']);
+
+// Galleries
+Route::get('/galleries/{product_id}', [GalleryController::class, 'index']);
+Route::post('/galleries/multiple', [GalleryController::class, 'store']);
+Route::delete('/galleries/{gallery}', [GalleryController::class, 'destroy']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductDetail;
+use App\Models\Color;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -21,9 +22,12 @@ class ProductController extends Controller
         // $products = Product::with('productDetail')->get();
         // return response()->json($products);
         $perPage = 16;
-        $products = Product::with('productDetail')->paginate($perPage);
+        $products = Product::with('productDetail')->with('productColors')->paginate($perPage);
+        $responseData = [
+            'data' => $products,
+        ];
 
-        return response()->json($products);
+        return response()->json($responseData);
 
         // lấy 1 bảng
         // return Product::select('product_name','product_desc', 'product_content', 'product_price','product_sale', 'product_image', 'product_status')->get();
@@ -169,6 +173,7 @@ class ProductController extends Controller
 
         // Xóa tất cả các bản ghi liên quan trong các bảng
         $product->productDetail()->delete();
+        $product->productColors()->delete();
         //Thêm các bảng liên quan khác nếu có
 
         // Xóa sản phẩm chính
@@ -220,8 +225,13 @@ class ProductController extends Controller
             if ($products->isEmpty()) {
                 return response()->json(['message' => 'No products found for the given category', 'data' => []]);
             }
+            $responseData = [
+                'category_name' => $category->category_name,
+                'data' => $products,
+            ];
 
-            return response()->json(['data' => $products]);
+            // return response()->json(['data' => $products]);
+            return response()->json($responseData);
         } catch (\Exception $e) {
             // Handle exceptions if any
             return response()->json(['message' => 'Error retrieving products by category', 'error' => $e->getMessage()], 500);
@@ -231,13 +241,19 @@ class ProductController extends Controller
     public function getProductDetail($product_id)
     {
         try {
-            $product = Product::with('productDetail')->findOrFail($product_id);
+            $product = Product::with('productDetail')->with('productColors')->findOrFail($product_id);
 
             if (!$product) {
                 return response()->json(['message' => 'Product not found'], 404);
             }
     
-            return response()->json(['data' => $product]);
+            $colors = Color::get();
+
+            $responseData = [
+                'data' => $product,
+                'colors' => $colors,
+            ];
+            return response()->json($responseData);
         } catch (\Exception $e) {
             return response()->json(['data' => []]);
         }

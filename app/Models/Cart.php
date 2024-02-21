@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Cart extends Model
 {
     use HasFactory;
-     protected $fillable = ['customer_id','product_id', 'product_quantity'];
+     protected $fillable = ['customer_id','product_id','color_id', 'product_quantity'];
     protected $primaryKey = 'cart_id';
     protected $table = 'cart';
 
@@ -16,4 +16,12 @@ class Cart extends Model
     {
         return $this->hasOne(Product::class, 'product_id', 'product_id');
     }
+    public function productColors()
+    {
+        return $this->hasMany(ProductColor::class, 'product_id', 'product_id');
+    }
+    // public function productColors()
+    // {
+    //     return $this->hasOne(ProductColor::class, ['product_id', 'color_id'], ['product_id', 'color_id']);
+    // }
 }

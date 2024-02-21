@@ -20,4 +20,8 @@ class Product extends Model
     {
         return $this->hasOne(ProductDetail::class, 'product_id', 'product_id');
     }
+    public function productColors()
+    {
+        return $this->hasMany(ProductColor::class, 'product_id', 'product_id');
+    }
 }

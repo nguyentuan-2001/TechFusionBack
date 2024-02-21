@@ -20,7 +20,16 @@ return new class extends Migration
                 ->references('customer_id')
                 ->on('customers')
                 ->onDelete('cascade');
-            $table->integer('product_id');
+            $table->unsignedBigInteger('product_id');
+            $table->foreign('product_id')
+                ->references('product_id')
+                ->on('products')
+                ->onDelete('cascade');
+            $table->unsignedBigInteger('color_id');
+            $table->foreign('color_id')
+                ->references('color_id')
+                ->on('colors')
+                ->onDelete('cascade');
             $table->integer('product_quantity');
             $table->timestamps();
         });

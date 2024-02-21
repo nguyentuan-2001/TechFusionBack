@@ -49,18 +49,19 @@ class CartController extends Controller
     
         foreach ($products as $product) {
             $productId = $product['product_id'];
+            $colorId = $product['color_id'];
             $quantity = $product['product_quantity'];
     
             // Nếu sản phẩm đã tồn tại trong giỏ hàng của khách hàng, cập nhật quantity
             Cart::updateOrCreate(
-                ['customer_id' => $customerId, 'product_id' => $productId],
+                // ['customer_id' => $customerId, 'product_id' => $productId],
+                ['customer_id' => $customerId, 'product_id' => $productId, 'color_id' => $colorId],
                 ['product_quantity' => \DB::raw("product_quantity + $quantity")]
             );
         }
     
         return response()->json(['message' => 'Cart updated successfully'], 200);
     }
-    
 
     /**
      * Display the specified resource.
@@ -147,17 +148,35 @@ class CartController extends Controller
         //
     }
 
+    // public function getCartProducts($customerId)
+    // {
+    //     $cartItems = Cart::with(['productDetail' => function ($query) {
+    //         $query->select('product_id', 'product_name', 'product_price', 'product_image','product_inventory_quantity', 'product_sale');
+    //     }])->where('customer_id', $customerId)->get(['customer_id', 'product_id','color_id', 'product_quantity']);
+
+    //     if ($cartItems->isEmpty()) {
+    //         return response()->json(['message' => 'Cart is empty', 'data' => []]);
+    //     }
+    //     return response()->json(['data' => $cartItems]);
+    // }
     public function getCartProducts($customerId)
     {
-        $cartItems = Cart::with(['productDetail' => function ($query) {
-            $query->select('product_id', 'product_name', 'product_price', 'product_image','product_inventory_quantity', 'product_sale');
-        }])->where('customer_id', $customerId)->get(['customer_id', 'product_id', 'product_quantity']);
+        $cartItems = Cart::with([
+            'productDetail' => function ($query) {
+                $query->select('product_id', 'product_name', 'product_price', 'product_image', 'product_inventory_quantity', 'product_sale');
+            },
+            'productColors' => function ($query) {
+                $query->select('product_id', 'color_id', 'quantity');
+            },
+        ])->where('customer_id', $customerId)->get(['customer_id', 'product_id', 'color_id', 'product_quantity']);
 
         if ($cartItems->isEmpty()) {
             return response()->json(['message' => 'Cart is empty', 'data' => []]);
         }
+
         return response()->json(['data' => $cartItems]);
     }
+
 
     public function deleteProductFromCart($customerId, $productId)
     {
