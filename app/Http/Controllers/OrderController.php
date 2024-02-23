@@ -119,10 +119,29 @@ class OrderController extends Controller
      * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Order $order)
+    public function update(Request $request, $order_id)
     {
-        
+        // Kiểm tra xem đơn hàng tồn tại không
+        $order = Order::find($order_id);
+
+        if (!$order) {
+            return response()->json(['message' => 'Đơn hàng không tồn tại.'], 404);
+        }
+
+        // Validate dữ liệu đầu vào
+        $request->validate([
+            'order_status' => 'required',
+        ]);
+
+        // Cập nhật trạng thái của đơn hàng
+        $order->update([
+            'order_status' => $request->input('order_status'),
+        ]);
+
+        // Trả về thông báo thành công
+        return response()->json(['message' => 'Cập nhật trạng thái đơn hàng thành công.'], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -133,5 +152,19 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         //
+    }
+
+    public function getOrdersByCustomerId($customer_id)
+    {
+        // Lấy ra các đơn hàng của một customer_id cụ thể
+        $orders = Order::where('customer_id', $customer_id)->with('orderDetail')->with('shipping')->get();
+
+        // Kiểm tra nếu không có đơn hàng nào được tìm thấy
+        if ($orders->isEmpty()) {
+            return response()->json(['message' => 'Không có đơn hàng cho customer_id này.'], 404);
+        }
+
+        // Trả về danh sách đơn hàng
+        return response()->json(['orders' => $orders], 200);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -37,7 +38,22 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $rules = [
+            'category_name' => 'required|string',
+            'category_desc' => 'required|string',
+            'category_status' => 'required|in:1,0',
+        ];
+
+        $request->validate($rules);
+
+        // Create the category if validation passes
+        $category = Category::create([
+            'category_name' => $request->input('category_name'),
+            'category_desc' => $request->input('category_desc'),
+            'category_status' => $request->input('category_status'),
+        ]);
+
+        return response()->json(['message' => 'Category created successfully']);
     }
 
     /**
@@ -69,9 +85,23 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Category $category)
     {
-        //
+        // Kiểm tra xem sản phẩm tồn tại không
+        if (!$category) {
+            return response()->json(['message' => 'category not found'], 404);
+        }
+        // Validate dữ liệu đầu vào
+        $validatedData = $request->validate([
+            'category_name' => 'required|string|max:255',
+            'category_desc' => 'string',
+            'category_status' => ['required', Rule::in(['1', '0'])],
+        ]);
+
+        // Cập nhật thông tin của slider
+        $category->update($validatedData);
+
+        return response()->json($category, 200);
     }
 
     /**
@@ -80,8 +110,19 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        //
+        if (!$category) {
+            return response()->json(['message' => 'category not found'], 404);
+        }
+
+        // Xóa tất cả các bản ghi liên quan trong các bảng
+        $category->products()->delete();
+
+        // Xóa sản phẩm chính
+        $category->delete();
+
+        // Trả về phản hồi với thông báo
+        return response()->json(['message' => 'Product and related records deleted successfully'], 200);
     }
 }

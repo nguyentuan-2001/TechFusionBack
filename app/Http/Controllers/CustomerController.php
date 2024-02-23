@@ -17,8 +17,13 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customer = Customers::get();
-        return response()->json($customer);
+        $perPage = 16;
+        $customer = Customers::paginate($perPage);
+        $responseData = [
+            'data' => $customer,
+        ];
+
+        return response()->json($responseData);
     }
 
     /**

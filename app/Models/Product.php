@@ -24,4 +24,8 @@ class Product extends Model
     {
         return $this->hasMany(ProductColor::class, 'product_id', 'product_id');
     }
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id', 'category_id');
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductDetail;
+use App\Models\ProductColor;
 use App\Models\Color;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -70,7 +71,15 @@ class ProductController extends Controller
             'product_price' => 'required|numeric',
             'product_content' => 'string',
             'product_image' => 'required|string',
-            'product_status' => 'required|in:1,0', 
+            'product_status' => 'required|in:1,0',
+            'product_cpu' => 'string', // Thêm quy tắc kiểm tra cho các trường mới
+            'product_ram' => 'string',
+            'hard_drive' => 'string',
+            'product_card' => 'string',
+            'desktop' => 'string',
+            'colors' => 'required|array', // Đảm bảo colors là một mảng
+            'colors.*.color_id' => 'required|exists:colors,color_id', // Kiểm tra color_id trong mỗi phần tử của mảng
+            'colors.*.quantity' => 'required|numeric', // Kiểm tra quantity trong mỗi phần tử của mảng
         ];
 
         $request->validate($rules);
@@ -86,8 +95,28 @@ class ProductController extends Controller
             'product_status' => $request->input('product_status'),
         ]);
 
+        // Create product details
+        $productDetail = ProductDetail::create([
+            'product_id' => $product->product_id,
+            'product_cpu' => $request->input('product_cpu'),
+            'product_ram' => $request->input('product_ram'),
+            'hard_drive' => $request->input('hard_drive'),
+            'product_card' => $request->input('product_card'),
+            'desktop' => $request->input('desktop'),
+        ]);
+
+        // Create product colors
+        foreach ($request->input('colors') as $color) {
+            ProductColor::create([
+                'product_id' => $product->product_id,
+                'color_id' => $color['color_id'],
+                'quantity' => $color['quantity'],
+            ]);
+        }
+
         return response()->json(['message' => 'Product created successfully', 'data' => $product]);
     }
+
 
     /**
      * Display the specified resource.
@@ -97,7 +126,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        return response()->json($slider);
+        return response()->json($product);
     }
 
     /**
@@ -118,25 +147,52 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
+    // public function update(Request $request, Product $product)
+    // {
+    //     // Kiểm tra xem sản phẩm tồn tại không
+    //     if (!$product) {
+    //         return response()->json(['message' => 'Product not found'], 404);
+    //     }
+
+    //     // Validate dữ liệu từ request
+    //     $request->validate([
+    //         'category_id' => 'required|exists:categories,category_id',
+    //         'product_sale' => 'numeric',
+    //         'product_name' => 'required|string',
+    //         'product_price' => 'required|numeric',
+    //         'product_content' => 'string',
+    //         'product_image' => 'required|string',
+    //         'product_status' => ['required', Rule::in(['1', '0'])],
+    //     ]);
+
+    //     // Cập nhật thông tin sản phẩm
+    //     $product->update([
+    //         'category_id' => $request->input('category_id'),
+    //         'product_sale' => $request->input('product_sale'),
+    //         'product_name' => $request->input('product_name'),
+    //         'product_price' => $request->input('product_price'),
+    //         'product_content' => $request->input('product_content'),
+    //         'product_image' => $request->input('product_image'),
+    //         'product_status' => $request->input('product_status'),
+    //     ]);
+
+    //     // Trả về phản hồi với thông báo
+    //     return response()->json(['message' => 'Product updated successfully', 'data' => $product]);
+    // }
     public function update(Request $request, Product $product)
     {
-        // Kiểm tra xem sản phẩm tồn tại không
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-
-        // Validate dữ liệu từ request
+        // Validate dữ liệu đầu vào
         $request->validate([
-            'category_id' => 'required|exists:categories,category_id',
+            'category_id' => 'exists:categories,category_id',
             'product_sale' => 'numeric',
-            'product_name' => 'required|string',
-            'product_price' => 'required|numeric',
+            'product_name' => 'string|max:255',
+            'product_price' => 'numeric',
             'product_content' => 'string',
-            'product_image' => 'required|string',
-            'product_status' => ['required', Rule::in(['1', '0'])],
+            'product_image' => 'string',
+            'product_status' => 'in:1,0',
         ]);
 
-        // Cập nhật thông tin sản phẩm
+        // Update thông tin của bảng products
         $product->update([
             'category_id' => $request->input('category_id'),
             'product_sale' => $request->input('product_sale'),
@@ -147,8 +203,29 @@ class ProductController extends Controller
             'product_status' => $request->input('product_status'),
         ]);
 
-        // Trả về phản hồi với thông báo
-        return response()->json(['message' => 'Product updated successfully', 'data' => $product]);
+        // Update hoặc tạo mới thông tin của bảng product_details
+        $product->productDetail()->updateOrCreate(
+            ['product_id' => $product->product_id],
+            [
+                'product_cpu' => $request->input('product_cpu'),
+                'product_ram' => $request->input('product_ram'),
+                'hard_drive' => $request->input('hard_drive'),
+                'product_card' => $request->input('product_card'),
+                'desktop' => $request->input('desktop'),
+            ]
+        );
+
+        // Update hoặc tạo mới thông tin của bảng product_colors
+        $colors = $request->input('colors');
+
+        foreach ($colors as $color) {
+            $product->productColors()->updateOrCreate(
+                ['color_id' => $color['color_id']],
+                ['quantity' => $color['quantity']]
+            );
+        }
+
+        return response()->json(['message' => 'Product updated successfully']);
     }
 
 
@@ -216,7 +293,11 @@ class ProductController extends Controller
             $currentPage = $request->input('page', 1);
 
             // Lấy các sản phẩm liên quan đến danh mục và phân trang kết quả
-            $products = $category->products()->with('productColors')->paginate($perPage, ['*'], 'page', $currentPage);
+            $products = $category->products()
+            ->whereHas('category', function ($query) {
+                $query->where('category_status', '!=', 0);
+            })
+            ->paginate($perPage, ['*'], 'page', $currentPage);
 
             if ($products->isEmpty()) {
                 return response()->json(['message' => 'No products found for the given category', 'data' => []]);
@@ -268,6 +349,9 @@ class ProductController extends Controller
             // Exclude the provided product_id from the query and limit to 4 results
             $products = $category->products()
                 ->where('product_id', '!=', $product_id)
+                ->whereHas('category', function ($query) {
+                    $query->where('category_status', '!=', 0);
+                })
                 ->limit(4)
                 ->get();
 
@@ -279,6 +363,47 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             // Handle exceptions if any
             return response()->json(['message' => 'Error retrieving products by category', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getLatestProducts(Request $request)
+    {
+        try {
+            // Retrieve the latest products without considering a specific category
+            $latestProducts = Product::orderBy('created_at', 'desc')
+            ->whereHas('category', function ($query) {
+                $query->where('category_status', '!=', 0);
+            })
+            ->take(8)->get();
+    
+            if ($latestProducts->isEmpty()) {
+                return response()->json(['message' => 'No products found'], 404);
+            }
+    
+            return response()->json(['data' => $latestProducts]);
+        } catch (\Exception $e) {
+            // Handle exceptions if any
+            return response()->json(['message' => 'Error retrieving latest products', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getRandomEightProducts()
+    {
+        try {
+            $products = Product::inRandomOrder()
+            ->whereHas('category', function ($query) {
+                $query->where('category_status', '!=', 0);
+            })
+            ->take(8)
+            ->get();
+               
+            if ($products->isEmpty()) {
+                return response()->json(['message' => 'No products found'], 404);
+            }
+    
+            return response()->json(['data' => $products]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error retrieving products', 'error' => $e->getMessage()], 500);
         }
     }
 }

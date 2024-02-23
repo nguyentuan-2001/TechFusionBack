@@ -59,8 +59,7 @@ class SliderController extends Controller
      */
     public function show(Slider $slider)
     {
-        // Hiển thị chi tiết của slider cụ thể
-        return response()->json($slider);
+        //
     }
 
     /**
