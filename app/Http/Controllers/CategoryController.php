@@ -93,9 +93,9 @@ class CategoryController extends Controller
         }
         // Validate dữ liệu đầu vào
         $validatedData = $request->validate([
-            'category_name' => 'required|string|max:255',
+            'category_name' => 'string|max:255',
             'category_desc' => 'string',
-            'category_status' => ['required', Rule::in(['1', '0'])],
+            'category_status' => [Rule::in(['1', '0'])],
         ]);
 
         // Cập nhật thông tin của slider
