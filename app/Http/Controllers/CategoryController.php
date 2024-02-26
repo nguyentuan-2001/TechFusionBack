@@ -40,7 +40,7 @@ class CategoryController extends Controller
     {
         $rules = [
             'category_name' => 'required|string',
-            'category_desc' => 'required|string',
+            'category_desc' => 'nullable|string',
             'category_status' => 'required|in:1,0',
         ];
 
@@ -93,8 +93,8 @@ class CategoryController extends Controller
         }
         // Validate dữ liệu đầu vào
         $validatedData = $request->validate([
-            'category_name' => 'string|max:255',
-            'category_desc' => 'string',
+            'category_name' => 'required|string|max:255',
+            'category_desc' => 'nullable|string',
             'category_status' => [Rule::in(['1', '0'])],
         ]);
 
