@@ -61,6 +61,60 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    // public function store(Request $request)
+    // {
+    //     // Validation rules
+    //     $rules = [
+    //         'category_id' => 'required|exists:categories,category_id',
+    //         'product_sale' => 'numeric',
+    //         'product_name' => 'required|string|max:255',
+    //         'product_price' => 'required|numeric',
+    //         'product_content' => 'string',
+    //         'product_image' => 'required|string',
+    //         'product_status' => 'required|in:1,0',
+
+    //         'product_ram' => 'string',
+    //         'hard_drive' => 'string',
+    //         'product_card' => 'string',
+    //         'desktop' => 'string',
+    //         'colors' => 'required|array', // Đảm bảo colors là một mảng
+    //         'colors.*.color_id' => 'required|exists:colors,color_id', // Kiểm tra color_id trong mỗi phần tử của mảng
+    //         'colors.*.quantity' => 'required|numeric', // Kiểm tra quantity trong mỗi phần tử của mảng
+    //     ];
+
+    //     $request->validate($rules);
+
+    //     // Create the product if validation passes
+    //     $product = Product::create([
+    //         'category_id' => $request->input('category_id'),
+    //         'product_sale' => $request->input('product_sale'),
+    //         'product_name' => $request->input('product_name'),
+    //         'product_price' => $request->input('product_price'),
+    //         'product_content' => $request->input('product_content'),
+    //         'product_image' => $request->input('product_image'),
+    //         'product_status' => $request->input('product_status'),
+    //     ]);
+
+    //     // Create product details
+    //     $productDetail = ProductDetail::create([
+    //         'product_id' => $product->product_id,
+    //         'product_ram' => $request->input('product_ram'),
+    //         'hard_drive' => $request->input('hard_drive'),
+    //         'product_card' => $request->input('product_card'),
+    //         'desktop' => $request->input('desktop'),
+    //     ]);
+
+    //     // Create product colors
+    //     foreach ($request->input('colors') as $color) {
+    //         ProductColor::create([
+    //             'product_id' => $product->product_id,
+    //             'color_id' => $color['color_id'],
+    //             'quantity' => $color['quantity'],
+    //         ]);
+    //     }
+
+    //     return response()->json(['message' => 'Product created successfully', 'data' => $product]);
+    // }
     public function store(Request $request)
     {
         // Validation rules
@@ -72,14 +126,14 @@ class ProductController extends Controller
             'product_content' => 'string',
             'product_image' => 'required|string',
             'product_status' => 'required|in:1,0',
-            'product_cpu' => 'string', // Thêm quy tắc kiểm tra cho các trường mới
+
             'product_ram' => 'string',
             'hard_drive' => 'string',
             'product_card' => 'string',
             'desktop' => 'string',
-            'colors' => 'required|array', // Đảm bảo colors là một mảng
-            'colors.*.color_id' => 'required|exists:colors,color_id', // Kiểm tra color_id trong mỗi phần tử của mảng
-            'colors.*.quantity' => 'required|numeric', // Kiểm tra quantity trong mỗi phần tử của mảng
+            'colors' => 'required|array', // Ensure colors is an array
+            'colors.*.color_name' => 'required|string|max:255', // Check color_name in each element of the array
+            'colors.*.quantity' => 'required|numeric', // Check quantity in each element of the array
         ];
 
         $request->validate($rules);
@@ -98,7 +152,6 @@ class ProductController extends Controller
         // Create product details
         $productDetail = ProductDetail::create([
             'product_id' => $product->product_id,
-            'product_cpu' => $request->input('product_cpu'),
             'product_ram' => $request->input('product_ram'),
             'hard_drive' => $request->input('hard_drive'),
             'product_card' => $request->input('product_card'),
@@ -107,15 +160,33 @@ class ProductController extends Controller
 
         // Create product colors
         foreach ($request->input('colors') as $color) {
-            ProductColor::create([
-                'product_id' => $product->product_id,
-                'color_id' => $color['color_id'],
-                'quantity' => $color['quantity'],
-            ]);
+            // Check if color already exists
+            $existingColor = Color::where('color_name', $color['color_name'])->first();
+
+            if (!$existingColor) {
+                // Create the color if it doesn't exist
+                $createdColor = Color::create([
+                    'color_name' => $color['color_name'],
+                ]);
+
+                ProductColor::create([
+                    'product_id' => $product->product_id,
+                    'color_id' => $createdColor->color_id,
+                    'quantity' => $color['quantity'],
+                ]);
+            } else {
+                // Use the existing color
+                ProductColor::create([
+                    'product_id' => $product->product_id,
+                    'color_id' => $existingColor->color_id,
+                    'quantity' => $color['quantity'],
+                ]);
+            }
         }
 
         return response()->json(['message' => 'Product created successfully', 'data' => $product]);
     }
+
 
 
     /**
@@ -207,7 +278,6 @@ class ProductController extends Controller
         $product->productDetail()->updateOrCreate(
             ['product_id' => $product->product_id],
             [
-                'product_cpu' => $request->input('product_cpu'),
                 'product_ram' => $request->input('product_ram'),
                 'hard_drive' => $request->input('hard_drive'),
                 'product_card' => $request->input('product_card'),

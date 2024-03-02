@@ -20,7 +20,6 @@ return new class extends Migration
                 ->references('product_id')
                 ->on('products')
                 ->onDelete('cascade');
-            $table->string('product_cpu');
             $table->string('product_ram');
             $table->string('hard_drive');
             $table->string('product_card');
