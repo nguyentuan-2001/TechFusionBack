@@ -20,10 +20,10 @@ return new class extends Migration
                 ->references('product_id')
                 ->on('products')
                 ->onDelete('cascade');
-            $table->string('product_ram');
-            $table->string('hard_drive');
-            $table->string('product_card');
-            $table->string('desktop');
+            $table->string('product_ram')->nullable();
+            $table->string('hard_drive')->nullable();
+            $table->string('product_card')->nullable();
+            $table->string('desktop')->nullable();
             $table->timestamps();
         });
     }

@@ -21,10 +21,10 @@ return new class extends Migration
                 ->on('categories')
                 ->onDelete('cascade');
             $table->text('product_name');
-            $table->text('product_content');
-            $table->text('product_sale');
+            $table->text('product_content')->nullable();
+            $table->text('product_sale')->nullable();
             $table->double('product_price');
-            $table->string('product_image');
+            $table->string('product_image')->nullable();
             $table->integer('product_status');
             $table->timestamps();
         });

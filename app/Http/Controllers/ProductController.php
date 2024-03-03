@@ -118,25 +118,25 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         // Validation rules
-        $rules = [
-            'category_id' => 'required|exists:categories,category_id',
-            'product_sale' => 'numeric',
-            'product_name' => 'required|string|max:255',
-            'product_price' => 'required|numeric',
-            'product_content' => 'string',
-            'product_image' => 'required|string',
-            'product_status' => 'required|in:1,0',
+        // $rules = [
+        //     'category_id' => 'required|exists:categories,category_id',
+        //     'product_sale' => 'numeric',
+        //     'product_name' => 'required|string|max:255',
+        //     'product_price' => 'required|numeric',
+        //     // 'product_content' => 'string',
+        //     'product_image' => 'required|string',
+        //     'product_status' => 'required|in:1,0',
 
-            'product_ram' => 'string',
-            'hard_drive' => 'string',
-            'product_card' => 'string',
-            'desktop' => 'string',
-            'colors' => 'required|array', // Ensure colors is an array
-            'colors.*.color_name' => 'required|string|max:255', // Check color_name in each element of the array
-            'colors.*.quantity' => 'required|numeric', // Check quantity in each element of the array
-        ];
+        //     'product_ram' => 'string',
+        //     'hard_drive' => 'string',
+        //     'product_card' => 'string',
+        //     'desktop' => 'string',
+        //     'colors' => 'required|array', // Ensure colors is an array
+        //     'colors.*.color_name' => 'required|string|max:255', // Check color_name in each element of the array
+        //     'colors.*.quantity' => 'required|numeric', // Check quantity in each element of the array
+        // ];
 
-        $request->validate($rules);
+        // $request->validate($rules);
 
         // Create the product if validation passes
         $product = Product::create([
