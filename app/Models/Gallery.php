@@ -11,4 +11,6 @@ class Gallery extends Model
     protected $fillable = ['product_id','gallery_image'];
     protected $primaryKey = 'gallery_id';
     protected $table = 'galleries';
+
+    protected $hidden = ['created_at', 'updated_at'];
 }

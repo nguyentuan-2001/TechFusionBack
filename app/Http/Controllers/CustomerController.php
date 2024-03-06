@@ -19,11 +19,8 @@ class CustomerController extends Controller
     {
         $perPage = 16;
         $customer = Customers::select('customer_id', 'customer_name','customer_phone')->paginate($perPage);
-        $responseData = [
-            'data' => $customer,
-        ];
 
-        return response()->json($responseData);
+        return response()->json($customer);
     }
 
     /**
