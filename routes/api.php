@@ -101,6 +101,7 @@ Route::put('/news/{news}', [NewsController::class, 'update']);
 Route::delete('/news/{news}', [NewsController::class, 'destroy']);
 Route::get('/news/{news_id}', [NewsController::class, 'getNewsDetail']);
 Route::get('/allNews', [NewsController::class, 'getAllNewsInactive']);
+Route::put('/news/updateStatus/{news}', [NewsController::class, 'updateNewsStatus']);
 
 // Coupon
 Route::get('/coupon', [CouponController::class, 'index']);

@@ -147,4 +147,18 @@ class NewsController extends Controller
 
         return response()->json($responseData);
     }
+
+    public function updateNewsStatus(Request $request, News $news)
+    {
+        // Validate dữ liệu đầu vào
+        $request->validate([
+            'news_status' => 'required|in:0,1',
+        ]);
+
+        $news->update([
+            'news_status' => $request->input('news_status'),
+        ]);
+
+        return response()->json(['message' => 'News status updated successfully']);
+    }
 }
