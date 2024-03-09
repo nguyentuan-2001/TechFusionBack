@@ -16,11 +16,8 @@ class NewsController extends Controller
     {
         $perPage = 16;
         $news = News::paginate($perPage);
-        $responseData = [
-            'data' => $news,
-        ];
 
-        return response()->json($responseData);
+        return response()->json($news);
     }
 
     /**
