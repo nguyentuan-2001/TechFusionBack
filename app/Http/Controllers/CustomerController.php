@@ -185,7 +185,7 @@ class CustomerController extends Controller
 
     public function getCustomerDetail($customerId)
     {
-        $customer = Customers::find($customerId);
+        $customer = Customers::select('customer_id', 'customer_name','customer_phone')->find($customerId);
 
         if ($customer) {
             return response()->json($customer);

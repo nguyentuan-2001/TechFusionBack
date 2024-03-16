@@ -16,11 +16,8 @@ class NewsController extends Controller
     {
         $perPage = 16;
         $news = News::paginate($perPage);
-        $responseData = [
-            'data' => $news,
-        ];
 
-        return response()->json($responseData);
+        return response()->json($news);
     }
 
     /**
@@ -141,11 +138,8 @@ class NewsController extends Controller
     {
         $perPage = 16;
         $news = News::where('news_status', '!=', 0)->paginate($perPage);
-        $responseData = [
-            'data' => $news,
-        ];
 
-        return response()->json($responseData);
+        return response()->json($news);
     }
 
     public function updateNewsStatus(Request $request, News $news)
