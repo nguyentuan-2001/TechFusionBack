@@ -68,7 +68,6 @@ class ProductController extends Controller
             'category_id' => $request->input('category_id'),
             'product_sale' => $request->input('product_sale'),
             'product_name' => $request->input('product_name'),
-            'product_price' => $request->input('product_price'),
             'product_content' => $request->input('product_content'),
             'product_image' => $request->input('product_image'),
             'product_status' => $request->input('product_status'),
@@ -98,6 +97,7 @@ class ProductController extends Controller
                     'product_id' => $product->product_id,
                     'color_id' => $createdColor->color_id,
                     'quantity' => $color['quantity'],
+                    'product_price' => $color['product_price'],
                 ]);
             } else {
                 // Use the existing color
@@ -105,11 +105,12 @@ class ProductController extends Controller
                     'product_id' => $product->product_id,
                     'color_id' => $existingColor->color_id,
                     'quantity' => $color['quantity'],
+                    'product_price' => $color['product_price'],
                 ]);
             }
         }
 
-        return response()->json(['message' => 'Product created successfully', 'data' => $product]);
+        return response()->json(['message' => 'Product created successfully'], 201);
     }
 
 
@@ -161,7 +162,6 @@ class ProductController extends Controller
             'category_id' => $request->input('category_id'),
             'product_sale' => $request->input('product_sale'),
             'product_name' => $request->input('product_name'),
-            'product_price' => $request->input('product_price'),
             'product_content' => $request->input('product_content'),
             'product_image' => $request->input('product_image'),
             'product_status' => $request->input('product_status'),
@@ -193,6 +193,7 @@ class ProductController extends Controller
                     'product_id' => $product->product_id,
                     'color_id' => $createdColor->color_id,
                     'quantity' => $color['quantity'],
+                    'product_price' => $color['product_price'],
                 ]);
             } else {
                 // Use the existing color
@@ -200,6 +201,7 @@ class ProductController extends Controller
                     'product_id' => $product->product_id,
                     'color_id' => $existingColor->color_id,
                     'quantity' => $color['quantity'],
+                    'product_price' => $color['product_price'],
                 ]);
             }
         }
