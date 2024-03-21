@@ -109,9 +109,11 @@ class CustomerController extends Controller
     public function update(Request $request, Customers $customer)
     {
         $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'customer_password' => 'required|string',
+            // 'customer_name' => 'required|string|max:255',
+            // 'customer_password' => 'required|string',
             'customer_phone' => 'nullable|numeric',
+            'customer_fullname' => 'nullable|string',
+            'customer_image' => 'nullable|string',
         ]);
 
         if (!$customer) {
@@ -120,9 +122,11 @@ class CustomerController extends Controller
 
         try {
             $customer->update([
-                'customer_name' => $request->input('customer_name'),
-                'customer_password' => Hash::make($request->input('customer_password')),
+                // 'customer_name' => $request->input('customer_name'),
+                // 'customer_password' => Hash::make($request->input('customer_password')),
                 'customer_phone' => $request->input('customer_phone') ?? null,
+                'customer_fullname' => $request->input('customer_fullname') ?? null,
+                'customer_image' => $request->input('customer_image') ?? null,
             ]);
         
             return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
@@ -185,7 +189,7 @@ class CustomerController extends Controller
 
     public function getCustomerDetail($customerId)
     {
-        $customer = Customers::select('customer_id', 'customer_name','customer_phone')->find($customerId);
+        $customer = Customers::select('customer_id', 'customer_name','customer_phone','customer_fullname', 'customer_image')->find($customerId);
 
         if ($customer) {
             return response()->json($customer);

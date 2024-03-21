@@ -165,6 +165,6 @@ class OrderController extends Controller
         }
 
         // Trả về danh sách đơn hàng
-        return response()->json(['orders' => $orders], 200);
+        return response()->json( $orders, 200);
     }
 }
