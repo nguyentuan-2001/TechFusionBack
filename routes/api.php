@@ -13,6 +13,7 @@ use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\ProductColorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,7 @@ Route::get('/products/detail/{product_id}', [ProductController::class, 'getProdu
 Route::get('/products/related/{category_id}/{product_id}', [ProductController::class, 'getFourProductsByCategory']);
 Route::get('/allproducts', [ProductController::class, 'getAllProductsExceptInactiveCategories']);
 Route::put('/products/updateStatus/{product}', [ProductController::class, 'updateProductStatus']);
+Route::delete('/products/color/{product_color}', [ProductColorController::class, 'destroy']);
 
 
 // Danh sách tất cả sliders

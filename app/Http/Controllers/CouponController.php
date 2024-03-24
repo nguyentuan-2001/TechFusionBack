@@ -20,11 +20,7 @@ class CouponController extends Controller
         
         $coupons = Coupon::paginate($perPage);
 
-        $responseData = [
-            'data' => $coupons,
-        ];
-
-        return response()->json($responseData);
+        return response()->json($coupons);
     }
 
     /**

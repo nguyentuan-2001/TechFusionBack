@@ -97,7 +97,7 @@ class ProductController extends Controller
                     'product_id' => $product->product_id,
                     'color_id' => $createdColor->color_id,
                     'quantity' => $color['quantity'],
-                    'product_price' => $color['product_price'],
+                    'product_price' => $color['price'],
                 ]);
             } else {
                 // Use the existing color
@@ -105,7 +105,7 @@ class ProductController extends Controller
                     'product_id' => $product->product_id,
                     'color_id' => $existingColor->color_id,
                     'quantity' => $color['quantity'],
-                    'product_price' => $color['product_price'],
+                    'product_price' => $color['price'],
                 ]);
             }
         }
@@ -152,7 +152,7 @@ class ProductController extends Controller
             'product_sale' => 'numeric',
             'product_name' => 'string|max:255',
             'product_price' => 'numeric',
-            'product_content' => 'string',
+            // 'product_content' => 'string',
             'product_image' => 'string',
             'product_status' => 'in:1,0',
         ]);
@@ -193,18 +193,33 @@ class ProductController extends Controller
                     'product_id' => $product->product_id,
                     'color_id' => $createdColor->color_id,
                     'quantity' => $color['quantity'],
-                    'product_price' => $color['product_price'],
+                    'product_price' => $color['price'],
                 ]);
             } else {
                 // Use the existing color
-                ProductColor::create([
-                    'product_id' => $product->product_id,
-                    'color_id' => $existingColor->color_id,
-                    'quantity' => $color['quantity'],
-                    'product_price' => $color['product_price'],
-                ]);
+                // Check if the product color already exists for this product and color combination
+                $existingProductColor = ProductColor::where('product_id', $product->product_id)
+                                                    ->where('color_id', $existingColor->color_id)
+                                                    ->first();
+
+                if ($existingProductColor) {
+                    // If the product color already exists, update the quantity and price
+                    $existingProductColor->update([
+                        'quantity' => $color['quantity'],
+                        'product_price' => $color['price'],
+                    ]);
+                } else {
+                    // If the product color doesn't exist, create it
+                    ProductColor::create([
+                        'product_id' => $product->product_id,
+                        'color_id' => $existingColor->color_id,
+                        'quantity' => $color['quantity'],
+                        'product_price' => $color['price'],
+                    ]);
+                }
             }
         }
+
         return response()->json(['message' => 'Product updated successfully']);
     }
 
