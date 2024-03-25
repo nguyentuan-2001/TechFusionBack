@@ -16,7 +16,6 @@ class CouponController extends Controller
     public function index()
     {
         $perPage = 16;
-        $currentDate = Carbon::now();
         
         $coupons = Coupon::paginate($perPage);
 
@@ -91,7 +90,7 @@ class CouponController extends Controller
 
         $coupon->update($request->all());
 
-        return response()->json(['message' => 'Coupon updated successfully', 'data' => $coupon]);
+        return response()->json(['message' => 'Coupon updated successfully']);
     }
 
     /**
@@ -119,5 +118,22 @@ class CouponController extends Controller
         ];
 
         return response()->json($responseData);
+    }
+
+    public function getCouponDiscountByCode(Request $request)
+    {
+        $currentDate = Carbon::now();
+
+        $couponCode = $request->input('coupon_code');
+
+        $coupon = Coupon::where('coupon_code', $couponCode)
+                        ->whereDate('coupon_expiry_date', '>', $currentDate)
+                        ->first();
+
+        if ($coupon) {
+            return $coupon->coupon_discount;
+        } else {
+            return [];
+        }
     }
 }

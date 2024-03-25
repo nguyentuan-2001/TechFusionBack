@@ -111,3 +111,4 @@ Route::post('/coupon', [CouponController::class, 'store']);
 Route::put('/coupon/{coupon}', [CouponController::class, 'update']);
 Route::delete('/coupon/{coupon}', [CouponController::class, 'destroy']);
 Route::get('/allCoupon', [CouponController::class, 'getAllCouponInactive']);
+Route::get('/couponByCode', [CouponController::class, 'getCouponDiscountByCode']);

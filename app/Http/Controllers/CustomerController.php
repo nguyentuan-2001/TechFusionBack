@@ -45,6 +45,7 @@ class CustomerController extends Controller
         $request->validate([
             'customer_name' => 'required|string',
             'customer_password' => 'required|string',
+            'customer_fullname' => 'nullable|string',
         ]);
 
         // Check if customer_name already exists
@@ -58,6 +59,7 @@ class CustomerController extends Controller
         // Create a new customer
         $customer = Customers::create([
             'customer_name' => $request->input('customer_name'),
+            'customer_fullname' => $request->input('customer_fullname'),
             'customer_password' => Hash::make($request->input('customer_password')),
         ]);
 
