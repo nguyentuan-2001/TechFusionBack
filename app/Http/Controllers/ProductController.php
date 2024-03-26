@@ -365,7 +365,7 @@ class ProductController extends Controller
     {
         try {
             // Retrieve the latest products without considering a specific category
-            $latestProducts = Product::orderBy('created_at', 'desc')
+            $latestProducts = Product::with('productColors')->orderBy('created_at', 'desc')
             ->whereHas('category', function ($query) {
                 $query->where('category_status', '!=', 0);
             })
@@ -385,7 +385,7 @@ class ProductController extends Controller
     public function getRandomEightProducts()
     {
         try {
-            $products = Product::inRandomOrder()
+            $products = Product::with('productColors')->inRandomOrder()
             ->whereHas('category', function ($query) {
                 $query->where('category_status', '!=', 0);
             })
