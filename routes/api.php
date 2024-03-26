@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductColorController;
+use App\Http\Controllers\VnpayPaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -112,3 +113,5 @@ Route::put('/coupon/{coupon}', [CouponController::class, 'update']);
 Route::delete('/coupon/{coupon}', [CouponController::class, 'destroy']);
 Route::get('/allCoupon', [CouponController::class, 'getAllCouponInactive']);
 Route::get('/couponByCode', [CouponController::class, 'getCouponDiscountByCode']);
+
+Route::post('/vnpay-payment', [VnpayPaymentController::class, 'createPayment']);
