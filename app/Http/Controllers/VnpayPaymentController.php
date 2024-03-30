@@ -11,10 +11,11 @@ class VnpayPaymentController extends Controller
         // Lấy dữ liệu từ request
         $total = $request->input('total');
         $fee = $request->input('fee');
+        $orderID= $request->input('order_id');
 
         // Các thông tin khác để tạo yêu cầu thanh toán
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_Returnurl = "http://localhost:5555/";
+        $vnp_Returnurl = 'http://localhost:5555/thanks?orderID=' .$orderID ;
         $vnp_TmnCode = "UCBZ2V5W";
         $vnp_HashSecret = "CWINRJBCINWPAWOEALXHKCRYLMFGKENJ";
         $vnp_TxnRef = rand(00,9999);

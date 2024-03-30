@@ -20,6 +20,11 @@ return new class extends Migration
                 ->references('order_id')
                 ->on('order')
                 ->onDelete('cascade');
+            $table->unsignedBigInteger('color_id')->index();
+            $table->foreign('color_id')
+                ->references('color_id')
+                ->on('colors')
+                ->onDelete('cascade');
             $table->integer('product_id');
             $table->string('product_name');
             $table->double('product_price');
