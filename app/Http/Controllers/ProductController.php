@@ -342,7 +342,7 @@ class ProductController extends Controller
             }
 
             // Exclude the provided product_id from the query and limit to 4 results
-            $products = $category->products()
+            $products = $category->products()->with('productColors')
                 ->where('product_id', '!=', $product_id)
                 ->whereHas('category', function ($query) {
                     $query->where('category_status', '!=', 0);

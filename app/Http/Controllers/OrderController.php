@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Shipping;
+use App\Models\Color;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -17,12 +18,12 @@ class OrderController extends Controller
     public function index()
     {
         $perPage = 16;
-        $orders = Order::with('orderDetail')->with('shipping')->paginate($perPage);
-        $responseData = [
-            'data' => $orders,
-        ];
+        $orders = Order::with(['customer' => function ($query) {
+            $query->select('customer_id', 'customer_fullname');
+        }])
+        ->paginate($perPage);
 
-        return response()->json($responseData);
+        return response()->json($orders);
     }
 
     /**
@@ -82,6 +83,7 @@ class OrderController extends Controller
                 'order_id' => $order_id,
                 'product_id' => $detail['product_id'],
                 'color_id' => $detail['color_id'],
+                'product_image' => $detail['product_image'],
                 'product_name' => $detail['product_name'],
                 'product_price' => $detail['product_price'],
                 'product_sales_quantity' => $detail['product_sales_quantity'],
@@ -159,6 +161,12 @@ class OrderController extends Controller
     {
         // Lấy ra các đơn hàng của một customer_id cụ thể
         $orders = Order::where('customer_id', $customer_id)->with('orderDetail')->with('shipping')->get();
+        $colors = Color::get();
+
+        $responseData = [
+            'data' => $orders,
+            'colors' => $colors,
+        ];
 
         // Kiểm tra nếu không có đơn hàng nào được tìm thấy
         if ($orders->isEmpty()) {
@@ -166,6 +174,23 @@ class OrderController extends Controller
         }
 
         // Trả về danh sách đơn hàng
-        return response()->json( $orders, 200);
+        return response()->json( $responseData, 200);
+    }
+
+    public function getOrderDetail($orderId)
+    {
+        // Tìm đơn hàng theo ID
+        $order = Order::findOrFail($orderId);
+
+        // Lấy chi tiết đơn hàng
+        $orderDetail = $order->orderDetail;
+
+        // Kiểm tra xem có tồn tại chi tiết đơn hàng không
+        if (!$orderDetail) {
+            return response()->json(['message' => 'Order detail not found'], 404);
+        }
+
+        // Trả về chi tiết đơn hàng
+        return response()->json(['order_detail' => $orderDetail]);
     }
 }

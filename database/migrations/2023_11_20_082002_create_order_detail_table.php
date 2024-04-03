@@ -26,6 +26,7 @@ return new class extends Migration
                 ->on('colors')
                 ->onDelete('cascade');
             $table->integer('product_id');
+            $table->string('product_image');
             $table->string('product_name');
             $table->double('product_price');
             $table->integer('product_sales_quantity');
