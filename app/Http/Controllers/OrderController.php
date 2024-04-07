@@ -6,7 +6,9 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Shipping;
 use App\Models\Color;
+use App\Models\ProductColor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -136,15 +138,48 @@ class OrderController extends Controller
             'order_status' => 'required',
         ]);
 
+        // Lấy trạng thái trước đó của đơn hàng
+        $previousStatus = $order->order_status;
+
         // Cập nhật trạng thái của đơn hàng
         $order->update([
             'order_status' => $request->input('order_status'),
         ]);
 
+        // Nếu order_status là 1 hoặc 5, và trạng thái trước đó không phải là 1 hoặc 5, thực hiện cộng hoặc trừ product_sales_quantity từ bảng order_detail vào quantity từ bảng product_color
+        if (in_array($request->input('order_status'), [1, 5]) && !in_array($previousStatus, [1, 5])) {
+            $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+
+            foreach ($orderDetails as $orderDetail) {
+                $productColor = ProductColor::where('product_id', $orderDetail->product_id)->first();
+
+                if ($productColor) {
+                    $updatedQuantity = $productColor->quantity + $orderDetail->product_sales_quantity;
+
+                    $productColor->update([
+                        'quantity' => $updatedQuantity >= 0 ? $updatedQuantity : 0,
+                    ]);
+                }
+            }
+        } elseif (in_array($request->input('order_status'), [2, 3, 4]) && !in_array($previousStatus, [2, 3, 4])) {
+            // Nếu order_status là 2, 3 hoặc 4, và trạng thái trước đó không phải là 2, 3 hoặc 4, thực hiện trừ product_sales_quantity từ bảng order_detail khỏi quantity từ bảng product_color
+            $orderDetails = OrderDetail::where('order_id', $order_id)->get();
+
+            foreach ($orderDetails as $orderDetail) {
+                $productColor = ProductColor::where('product_id', $orderDetail->product_id)->first();
+
+                if ($productColor) {
+                    $updatedQuantity = $productColor->quantity - $orderDetail->product_sales_quantity;
+                    $productColor->update([
+                        'quantity' => $updatedQuantity >= 0 ? $updatedQuantity : 0,
+                    ]);
+                }
+            }
+        }
+
         // Trả về thông báo thành công
         return response()->json(['message' => 'Cập nhật trạng thái đơn hàng thành công.'], 200);
     }
-
 
     /**
      * Remove the specified resource from storage.
@@ -179,18 +214,47 @@ class OrderController extends Controller
 
     public function getOrderDetail($orderId)
     {
-        // Tìm đơn hàng theo ID
-        $order = Order::findOrFail($orderId);
+        // Tìm đơn hàng theo ID với các thông tin liên quan như chi tiết đơn hàng và thông tin vận chuyển
+        // $order = Order::with('orderDetail')->with('shipping')->with('customer')->findOrFail($orderId);
+        $order = Order::with('orderDetail')->with('shipping')
+        -> with(['customer' => function ($query) {
+            $query->select('customer_id', 'customer_fullname', 'customer_image', 'customer_name', 'customer_phone');
+        }])->findOrFail($orderId);
+        $colors = Color::get();
 
-        // Lấy chi tiết đơn hàng
-        $orderDetail = $order->orderDetail;
+        $responseData = [
+            'data' => $order,
+            'colors' => $colors,
+        ];
 
-        // Kiểm tra xem có tồn tại chi tiết đơn hàng không
-        if (!$orderDetail) {
-            return response()->json(['message' => 'Order detail not found'], 404);
+        // Kiểm tra xem có tồn tại đơn hàng không
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
         }
 
-        // Trả về chi tiết đơn hàng
-        return response()->json(['order_detail' => $orderDetail]);
+        // Trả về đơn hàng và các chi tiết của đơn hàng đó, cùng với thông tin khách hàng
+        return response()->json($responseData);
     }
+    public function getDailySalesBetweenDates($start_date, $end_date)
+    {
+        // Truy vấn SQL để tính tổng tiền cho mỗi ngày trong khoảng ngày
+        $daily_sales = DB::table('order')
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(order_total) as total_sales'))
+            ->whereBetween('created_at', [$start_date, $end_date])
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->get();
+
+        return $daily_sales;
+    }
+
+    public function countDistinctPayments()
+    {
+        // Gọi phương thức từ model để đếm số lượng các payment_id giống nhau
+        $counts = Order::groupBy('payment_id')
+            ->select('payment_id', Order::raw('count(*) as total'))
+            ->pluck('total', 'payment_id');
+
+        return $counts;
+    }
+
 }

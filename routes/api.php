@@ -61,6 +61,10 @@ Route::get('/order', [OrderController::class, 'index']);
 Route::post('/order', [OrderController::class, 'store']);
 Route::get('/order/{customer_id}', [OrderController::class, 'getOrdersByCustomerId']);
 Route::put('/order/{order_id}', [OrderController::class, 'update']);
+Route::get('/order/detail/{order_id}', [OrderController::class, 'getOrderDetail']);
+Route::get('/dailySales/{start_date}/{end_date}', [OrderController::class, 'getDailySalesBetweenDates']);
+Route::get('/distinctPayments', [OrderController::class, 'countDistinctPayments']);
+
 
 //Cart
 Route::post('/carts', [CartController::class, 'store']);

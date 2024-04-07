@@ -18,7 +18,7 @@ class CustomerController extends Controller
     public function index()
     {
         $perPage = 16;
-        $customer = Customers::select('customer_id', 'customer_name','customer_phone')->paginate($perPage);
+        $customer = Customers::select('customer_id', 'customer_fullname','customer_phone')->paginate($perPage);
 
         return response()->json($customer);
     }
