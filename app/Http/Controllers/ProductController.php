@@ -292,6 +292,7 @@ class ProductController extends Controller
             ->whereHas('category', function ($query) {
                 $query->where('category_status', '!=', 0);
             })
+            ->with('productColors')
             ->paginate($perPage, ['*'], 'page', $currentPage);
 
             if ($products->isEmpty()) {
