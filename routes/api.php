@@ -76,6 +76,7 @@ Route::put('/cart/customer/{customer_id}', [CartController::class, 'update']);
 // Customer
 Route::post('/customer', [CustomerController::class, 'store']);
 Route::post('/customer/login', [CustomerController::class, 'login']);
+Route::post('/customer/google', [CustomerController::class, 'loginOrSignUp']);
 Route::get('/customer', [CustomerController::class, 'index']);
 Route::put('/customer/{customer}', [CustomerController::class, 'update']);
 Route::delete('/customer/{customer}', [CustomerController::class, 'destroy']);

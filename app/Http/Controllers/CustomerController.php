@@ -19,10 +19,8 @@ class CustomerController extends Controller
     {
         $perPage = 16;
         $customer = Customers::select('customer_id', 'customer_fullname','customer_phone')->paginate($perPage);
-
         return response()->json($customer);
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -32,7 +30,6 @@ class CustomerController extends Controller
     {
         //
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -47,38 +44,35 @@ class CustomerController extends Controller
             'customer_password' => 'required|string',
             'customer_fullname' => 'nullable|string',
         ]);
-
         // Check if customer_name already exists
         $existingCustomer = Customers::where('customer_name', $request->input('customer_name'))->first();
-
         if ($existingCustomer) {
             // If customer_name exists, return an error response
             throw ValidationException::withMessages(['customer_name' => 'Tên khách hàng đã tồn tại trong hệ thống.']);
         }
-
         // Create a new customer
         $customer = Customers::create([
             'customer_name' => $request->input('customer_name'),
             'customer_fullname' => $request->input('customer_fullname'),
             'customer_password' => Hash::make($request->input('customer_password')),
         ]);
-
         // Generate a personal access token
         $token = $customer->createToken('customer-access-token')->plainTextToken;
-
         // Update the customer record with the generated token
         $customer->update(['customer_token' => $token]);
-
         // Return a JSON response with the customer data and access token
         return response()->json([
             'message' => 'Customer created successfully',
             'data' => [
-                'customer' => $customer,
+                'customer_id' => $customer->customer_id,
+                'customer_name' => $customer->customer_name,
+                'customer_fullname' => $customer->customer_fullname,
+                'customer_image' => $customer->customer_image,
+                'customer_phone' => $customer->customer_phone,
                 'access_token' => $token,
             ],
-        ], 201);
+        ], 200);
     }
-
     /**
      * Display the specified resource.
      *
@@ -89,7 +83,6 @@ class CustomerController extends Controller
     {
         //
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -100,7 +93,6 @@ class CustomerController extends Controller
     {
         //
     }
-
     /**
      * Update the specified resource in storage.
      *
@@ -117,11 +109,9 @@ class CustomerController extends Controller
             'customer_fullname' => 'nullable|string',
             'customer_image' => 'nullable|string',
         ]);
-
         if (!$customer) {
             return response()->json(['message' => 'Customer not found'], 404);
         }
-
         try {
             $customer->update([
                 // 'customer_name' => $request->input('customer_name'),
@@ -130,13 +120,11 @@ class CustomerController extends Controller
                 'customer_fullname' => $request->input('customer_fullname') ?? null,
                 'customer_image' => $request->input('customer_image') ?? null,
             ]);
-        
             return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error updating customer', 'error' => $e->getMessage()], 500);
         }
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -147,7 +135,6 @@ class CustomerController extends Controller
     {
         if ($customers) {
             $customers->delete();
-
             // Trả về phản hồi với thông báo
             return response()->json(['message' => 'customers deleted successfully'], 200);
         } else {
@@ -155,29 +142,28 @@ class CustomerController extends Controller
             return response()->json(['message' => 'customers not found'], 404);
         }
     }
-
     public function login(Request $request)
     {
         $request->validate([
             'customer_name' => 'required|string',
             'customer_password' => 'required|string',
         ]);
-    
         try {
             // Attempt to authenticate the customer
             $customer = Customers::where('customer_name', $request->input('customer_name'))->firstOrFail();
-    
             if (!Hash::check($request->input('customer_password'), $customer->customer_password)) {
                 // Authentication failed
                 throw new \Exception('The provided credentials are incorrect.');
             }
-
             $token = $customer->createToken('customer-access-token')->plainTextToken;
-
             return response()->json([
                 'message' => 'Customer authenticated successfully',
                 'data' => [
-                    'customer' => $customer,
+                    'customer_id' => $customer->customer_id,
+                    'customer_name' => $customer->customer_name,
+                    'customer_fullname' => $customer->customer_fullname,
+                    'customer_image' => $customer->customer_image,
+                    'customer_phone' => $customer->customer_phone,
                     'access_token' => $token,
                 ],
             ]);
@@ -188,15 +174,31 @@ class CustomerController extends Controller
             ]);
         }
     }
-
     public function getCustomerDetail($customerId)
     {
         $customer = Customers::select('customer_id', 'customer_name','customer_phone','customer_fullname', 'customer_image')->find($customerId);
-
         if ($customer) {
             return response()->json($customer);
         } else {
             return response()->json(['message' => 'Không tìm thấy khách hàng'], 404);
+        }
+    }
+    public function loginOrSignUp(Request $request)
+    {
+        // Validate the request data
+        $request->validate([
+            'customer_name' => 'required|string',
+            'customer_fullname' => 'nullable|string',
+            'customer_password' => 'required|string',
+        ]);
+        // Check if customer exists
+        $customer = Customers::where('customer_name', $request->input('customer_name'))->first();
+        if ($customer) {
+            // If customer exists, attempt login
+            return $this->login($request);
+        } else {
+            // If customer doesn't exist, proceed with signup
+            return $this->store($request);
         }
     }
 }
