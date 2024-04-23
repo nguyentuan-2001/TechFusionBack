@@ -150,7 +150,7 @@ class CartController extends Controller
         //
     }
 
-    public function getCartProducts($customerId)
+    public function getCartProducts($customerId, $productIds)
     {
         $cartItems = Cart::with([
             'productDetail' => function ($query) {
@@ -159,7 +159,10 @@ class CartController extends Controller
             'productColors' => function ($query) {
                 $query->select('product_id', 'color_id', 'quantity', 'product_price');
             },
-        ])->where('customer_id', $customerId)->get(['customer_id', 'product_id', 'color_id', 'product_quantity']);
+        ])
+        ->whereIn('product_id', $productIds)
+        ->where('customer_id', $customerId)
+        ->get(['customer_id', 'product_id', 'color_id', 'product_quantity']);
 
         if ($cartItems->isEmpty()) {
             return response()->json(['message' => 'Cart is empty', 'data' => []]);
