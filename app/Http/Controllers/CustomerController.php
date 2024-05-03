@@ -64,14 +64,10 @@ class CustomerController extends Controller
         return response()->json([
             'message' => 'Customer created successfully',
             'data' => [
-                'customer_id' => $customer->customer_id,
-                'customer_name' => $customer->customer_name,
-                'customer_fullname' => $customer->customer_fullname,
-                'customer_image' => $customer->customer_image,
-                'customer_phone' => $customer->customer_phone,
+                'customer' => $customer,
                 'access_token' => $token,
             ],
-        ], 200);
+        ], 201);
     }
     /**
      * Display the specified resource.
@@ -159,11 +155,7 @@ class CustomerController extends Controller
             return response()->json([
                 'message' => 'Customer authenticated successfully',
                 'data' => [
-                    'customer_id' => $customer->customer_id,
-                    'customer_name' => $customer->customer_name,
-                    'customer_fullname' => $customer->customer_fullname,
-                    'customer_image' => $customer->customer_image,
-                    'customer_phone' => $customer->customer_phone,
+                    'customer' => $customer,
                     'access_token' => $token,
                 ],
             ]);

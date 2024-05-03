@@ -68,7 +68,7 @@ Route::get('/distinctPayments', [OrderController::class, 'countDistinctPayments'
 
 //Cart
 Route::post('/carts', [CartController::class, 'store']);
-Route::get('/cart/{customer_id}/{product_ids}', [CartController::class, 'getCartProducts']);
+Route::get('/cart/{customer_id}', [CartController::class, 'getCartProducts']);
 Route::delete('/cart/customer/{customer_id}/product/{product_id}', [CartController::class, 'deleteProductFromCart']);
 Route::delete('/cart/customer/{customer_id}', [CartController::class, 'deleteAllProductsFromCart']);
 Route::put('/cart/customer/{customer_id}', [CartController::class, 'update']);
