@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('payment_id');
             $table->double('order_total');
             $table->integer('order_status');
+            $table->integer('order_reason')->default(0);
             $table->timestamps();
         });
     }

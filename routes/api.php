@@ -49,6 +49,7 @@ Route::delete('/products/color/{product_color}', [ProductColorController::class,
 
 // Danh sách tất cả sliders
 Route::get('/sliders', [SliderController::class, 'index']);
+Route::get('/allSliders', [SliderController::class, 'allSlider']);
 // Lưu slider mới
 Route::post('/sliders', [SliderController::class, 'store']);
 // Cập nhật thông tin của một slider cụ thể
@@ -63,6 +64,7 @@ Route::get('/order/{customer_id}', [OrderController::class, 'getOrdersByCustomer
 Route::put('/order/{order_id}', [OrderController::class, 'update']);
 Route::get('/order/detail/{order_id}', [OrderController::class, 'getOrderDetail']);
 Route::get('/dailySales/{start_date}/{end_date}', [OrderController::class, 'getDailySalesBetweenDates']);
+Route::get('/productsSold/{start_date}/{end_date}/{category_id}', [OrderController::class, 'getProductsSoldByDay']);
 Route::get('/distinctPayments', [OrderController::class, 'countDistinctPayments']);
 
 

@@ -144,6 +144,7 @@ class OrderController extends Controller
         // Cập nhật trạng thái của đơn hàng
         $order->update([
             'order_status' => $request->input('order_status'),
+            'order_reason' => $request->input('order_reason'),
         ]);
 
         // Nếu order_status là 1 hoặc 5, và trạng thái trước đó không phải là 1 hoặc 5, thực hiện cộng hoặc trừ product_sales_quantity từ bảng order_detail vào quantity từ bảng product_color
@@ -255,6 +256,37 @@ class OrderController extends Controller
             ->pluck('total', 'payment_id');
 
         return $counts;
+    }
+
+    public static function getProductsSoldByDay($start_date, $end_date, $category_id)
+    {
+        $query = DB::table('order_detail')->where('products.category_id', $category_id)
+            ->join('products', 'order_detail.product_id', '=', 'products.product_id')
+            ->select('order_detail.product_id', 'products.product_name', 'order_detail.created_at', DB::raw('SUM(order_detail.product_sales_quantity) as total_sales_quantity'))
+            ->whereBetween('order_detail.created_at', [$start_date, $end_date]);
+
+        $daily_sales = $query
+            ->groupBy('order_detail.product_id', 'products.product_name', 'order_detail.created_at')
+            ->get();
+
+        // Tạo một mảng kết quả mới
+        $result = [];
+
+        // Duyệt qua kết quả từ cơ sở dữ liệu
+        foreach ($daily_sales as $sale) {
+            // Kiểm tra xem sản phẩm đã tồn tại trong mảng kết quả chưa
+            $index = array_search($sale->product_id, array_column($result, 'product_id'));
+
+            // Nếu sản phẩm đã tồn tại, cộng tổng số lượng
+            if ($index !== false) {
+                $result[$index]->total_sales_quantity += $sale->total_sales_quantity;
+            } else {
+                // Nếu sản phẩm chưa tồn tại, thêm vào mảng kết quả mới
+                $result[] = $sale;
+            }
+        }
+
+        return $result;
     }
 
 }

@@ -155,6 +155,7 @@ class CustomerController extends Controller
             return response()->json([
                 'message' => 'Customer authenticated successfully',
                 'data' => [
+                    'customer_id' => $customer->customer_id,
                     'customer' => $customer,
                     'access_token' => $token,
                 ],

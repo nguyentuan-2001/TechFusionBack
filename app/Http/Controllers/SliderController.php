@@ -117,4 +117,9 @@ class SliderController extends Controller
             return response()->json(['message' => 'Slider not found'], 404);
         }
     }
+
+    public function allSlider()
+    {
+        return Slider::where('slider_status', '!=', 0)->get();
+    }
 }

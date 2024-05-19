@@ -259,7 +259,7 @@ class ProductController extends Controller
                 'product_name' => 'required|string|max:255',
             ]);
     
-            $products = Product::with('productColors')->where('product_name', 'like', '%' . $request->input('product_name') . '%')->get();
+            $products = Product::with('productColors')->where('product_name', 'like', '%' . $request->input('product_name') . '%')->where('product_status', '!=', 0)->get();
     
             if ($products->isEmpty()) {
                 return response()->json(['message' => 'No products found for the given search query', 'data' => []]);
@@ -290,7 +290,7 @@ class ProductController extends Controller
             // Lấy các sản phẩm liên quan đến danh mục và phân trang kết quả
             $products = $category->products()
             ->whereHas('category', function ($query) {
-                $query->where('category_status', '!=', 0);
+                $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
             })
             ->with('productColors')
             ->paginate($perPage, ['*'], 'page', $currentPage);
@@ -346,7 +346,7 @@ class ProductController extends Controller
             $products = $category->products()->with('productColors')
                 ->where('product_id', '!=', $product_id)
                 ->whereHas('category', function ($query) {
-                    $query->where('category_status', '!=', 0);
+                    $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
                 })
                 ->limit(4)
                 ->get();
@@ -368,7 +368,7 @@ class ProductController extends Controller
             // Retrieve the latest products without considering a specific category
             $latestProducts = Product::with('productColors')->orderBy('created_at', 'desc')
             ->whereHas('category', function ($query) {
-                $query->where('category_status', '!=', 0);
+                $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
             })
             ->take(8)->get();
     
@@ -388,7 +388,7 @@ class ProductController extends Controller
         try {
             $products = Product::with('productColors')->inRandomOrder()
             ->whereHas('category', function ($query) {
-                $query->where('category_status', '!=', 0);
+                $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
             })
             ->take(8)
             ->get();
@@ -407,7 +407,7 @@ class ProductController extends Controller
     {
         $perPage = 16;
         $products =  Product::with('productDetail')->with('productColors')->whereHas('category', function ($query) {
-            $query->where('category_status', '!=', 0);
+            $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
         })->paginate($perPage);
 
         $responseData = [
