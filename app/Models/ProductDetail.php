@@ -10,7 +10,7 @@ class ProductDetail extends Model
     use HasFactory;
 
     public $timestamps = false;
-    protected $fillable = ['product_id', 'product_ram','hard_drive', 'product_card', 'desktop'];
+    protected $fillable = ['product_id', 'product_ram','operating_system', 'product_pin', 'desktop'];
     protected $primaryKey = 'product_detail_id';
     protected $table = 'product_detail';
 

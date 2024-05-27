@@ -30,6 +30,11 @@ return new class extends Migration
                 ->references('color_id')
                 ->on('colors')
                 ->onDelete('cascade');
+            $table->unsignedBigInteger('storage_capacity_id');
+            $table->foreign('storage_capacity_id')
+                ->references('storage_capacity_id')
+                ->on('storage_capacity')
+                ->onDelete('cascade');
             $table->integer('product_quantity');
             $table->timestamps();
         });

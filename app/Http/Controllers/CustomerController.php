@@ -127,17 +127,18 @@ class CustomerController extends Controller
      * @param  \App\Models\Customers  $customers
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Customers $customers)
+    public function destroy($customer_id)
     {
+        $customers = Customers::find($customer_id);
+
         if ($customers) {
             $customers->delete();
-            // Trả về phản hồi với thông báo
             return response()->json(['message' => 'customers deleted successfully'], 200);
         } else {
-            // Trả về phản hồi nếu customers không tồn tại
             return response()->json(['message' => 'customers not found'], 404);
         }
     }
+
     public function login(Request $request)
     {
         $request->validate([

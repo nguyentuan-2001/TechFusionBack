@@ -28,4 +28,8 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
+    public function productCapacity()
+    {
+        return $this->hasMany(ProductCapacity::class, 'product_id', 'product_id');
+    }
 }

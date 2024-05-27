@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Cart;
 use App\Models\Color;
+use App\Models\StorageCapacity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -50,17 +51,18 @@ class CartController extends Controller
             $productId = $product['product_id'];
             $colorId = $product['color_id'];
             $quantity = $product['product_quantity'];
+            $storage = $product['storage_capacity_id'];
     
             // Nếu sản phẩm đã tồn tại trong giỏ hàng của khách hàng, cập nhật quantity
             Cart::updateOrCreate(
                 // ['customer_id' => $customerId, 'product_id' => $productId],
-                ['customer_id' => $customerId, 'product_id' => $productId, 'color_id' => $colorId],
+                ['customer_id' => $customerId, 'product_id' => $productId, 'color_id' => $colorId, 'storage_capacity_id' => $storage],
                 ['product_quantity' => \DB::raw("product_quantity + $quantity")]
             );
         }
     
         return response()->json(['message' => 'Cart updated successfully'], 200);
-    }
+    } 
 
     /**
      * Display the specified resource.
@@ -106,6 +108,7 @@ class CartController extends Controller
             $validator = Validator::make($productUpdate, [
                 'product_id' => 'required|numeric',
                 'color_id' => 'required|numeric',
+                'storage_capacity_id' => 'required|numeric',
                 'product_quantity' => 'required|numeric',
             ]);
 
@@ -117,6 +120,7 @@ class CartController extends Controller
             $cart = Cart::where('customer_id', $customer_id)
                         ->where('product_id', $productUpdate['product_id'])
                         ->where('color_id', $productUpdate['color_id'])
+                        ->where('storage_capacity_id', $productUpdate['storage_capacity_id'])
                         ->first();
 
             if ($cart) {
@@ -130,6 +134,7 @@ class CartController extends Controller
                     'customer_id' => $customer_id,
                     'product_id' => $productUpdate['product_id'],
                     'color_id' => $productUpdate['color_id'],
+                    'storage_capacity_id' => $productUpdate['storage_capacity_id'],
                     'product_quantity' => $productUpdate['product_quantity'],
                 ]);
             }
@@ -158,17 +163,19 @@ class CartController extends Controller
             },
             'productColors' => function ($query) {
                 $query->select('product_id', 'color_id', 'quantity', 'product_price');
-            },
-        ])->where('customer_id', $customerId)->get(['customer_id', 'product_id', 'color_id', 'product_quantity']);
+            }
+        ])->where('customer_id', $customerId)->get(['customer_id', 'product_id', 'color_id', 'product_quantity', 'storage_capacity_id']);
 
         if ($cartItems->isEmpty()) {
             return response()->json(['message' => 'Cart is empty', 'data' => []]);
         }
         $colors = Color::get();
+        $storage = StorageCapacity::get();
 
         $responseData = [
             'data' => $cartItems,
             'colors' => $colors,
+            'storage' => $storage,
         ];
 
         return response()->json($responseData);
@@ -204,4 +211,20 @@ class CartController extends Controller
     
         return response()->json(['message' => 'All products deleted from the cart']);
     }
+
+    public function getCartTotalQuantity($customerId)
+    {
+        // Lấy tổng số lượng sản phẩm trong giỏ hàng của khách hàng
+        $totalQuantity = Cart::where('customer_id', $customerId)
+                            ->sum('product_quantity');
+
+        // Nếu giỏ hàng trống, trả về thông báo thích hợp
+        if ($totalQuantity === 0) {
+            return response()->json(0);
+        }
+
+        // Trả về tổng số lượng sản phẩm trong giỏ hàng
+        return response()->json($totalQuantity);
+    }
+
 }

@@ -136,4 +136,18 @@ class CouponController extends Controller
             return [];
         }
     }
+
+    public function getRandomCoupon()
+    {
+        // Lấy một mã coupon ngẫu nhiên từ cơ sở dữ liệu
+        $coupon = Coupon::inRandomOrder()->first();
+
+        // Kiểm tra nếu không có mã coupon nào tồn tại
+        if (!$coupon) {
+            return response()->json(['message' => 'No coupons available'], 404);
+        }
+
+        // Trả về mã coupon ngẫu nhiên
+        return response()->json($coupon);
+    }
 }

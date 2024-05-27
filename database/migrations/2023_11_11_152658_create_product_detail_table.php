@@ -21,8 +21,8 @@ return new class extends Migration
                 ->on('products')
                 ->onDelete('cascade');
             $table->string('product_ram')->nullable();
-            $table->string('hard_drive')->nullable();
-            $table->string('product_card')->nullable();
+            $table->string('operating_system')->nullable();
+            $table->string('product_pin')->nullable();
             $table->string('desktop')->nullable();
             $table->timestamps();
         });

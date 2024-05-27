@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\ProductDetail;
 use App\Models\ProductColor;
 use App\Models\Color;
+use App\Models\ProductCapacity;
+use App\Models\StorageCapacity;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -77,8 +79,8 @@ class ProductController extends Controller
         $productDetail = ProductDetail::create([
             'product_id' => $product->product_id,
             'product_ram' => $request->input('product_ram'),
-            'hard_drive' => $request->input('hard_drive'),
-            'product_card' => $request->input('product_card'),
+            'operating_system' => $request->input('operating_system'),
+            'product_pin' => $request->input('product_pin'),
             'desktop' => $request->input('desktop'),
         ]);
 
@@ -108,6 +110,29 @@ class ProductController extends Controller
                     'product_price' => $color['price'],
                 ]);
             }
+        }
+
+        // Create product Storage Capacity
+        foreach ($request->input('storage_capacity') as $storage) {
+            // Check if Storage Capacity already exists
+            $existingStorage = StorageCapacity::where('total_capacity', $storage['total_capacity'])->first();
+
+            if (!$existingStorage) {
+                // Create the color if it doesn't exist
+                $createdStorage  = StorageCapacity::create([
+                    'total_capacity' => $storage['total_capacity'],
+                ]);
+
+                ProductCapacity::create([
+                    'product_id' => $product->product_id,
+                    'storage_capacity_id' => $createdStorage->storage_capacity_id,
+                ]);
+            }else{
+                ProductCapacity::create([
+                    'product_id' => $product->product_id,
+                    'storage_capacity_id' => $existingStorage->storage_capacity_id,
+                ]);
+            } 
         }
 
         return response()->json(['message' => 'Product created successfully'], 201);
@@ -152,7 +177,7 @@ class ProductController extends Controller
             'product_sale' => 'numeric',
             'product_name' => 'string|max:255',
             'product_price' => 'numeric',
-            // 'product_content' => 'string',
+            'product_content' => 'string',
             'product_image' => 'string',
             'product_status' => 'in:1,0',
         ]);
@@ -172,15 +197,14 @@ class ProductController extends Controller
             ['product_id' => $product->product_id],
             [
                 'product_ram' => $request->input('product_ram'),
-                'hard_drive' => $request->input('hard_drive'),
-                'product_card' => $request->input('product_card'),
+                'operating_system' => $request->input('operating_system'),
+                'product_pin' => $request->input('product_pin'),
                 'desktop' => $request->input('desktop'),
             ]
         );
 
-        // Create product colors
+        // Update hoặc tạo mới thông tin của bảng product_colors
         foreach ($request->input('colors') as $color) {
-            // Check if color already exists
             $existingColor = Color::where('color_name', $color['color_name'])->first();
 
             if (!$existingColor) {
@@ -196,7 +220,6 @@ class ProductController extends Controller
                     'product_price' => $color['price'],
                 ]);
             } else {
-                // Use the existing color
                 // Check if the product color already exists for this product and color combination
                 $existingProductColor = ProductColor::where('product_id', $product->product_id)
                                                     ->where('color_id', $existingColor->color_id)
@@ -215,6 +238,36 @@ class ProductController extends Controller
                         'color_id' => $existingColor->color_id,
                         'quantity' => $color['quantity'],
                         'product_price' => $color['price'],
+                    ]);
+                }
+            }
+        }
+
+        // Update hoặc tạo mới thông tin của bảng product_capacity
+        foreach ($request->input('storage_capacity') as $storage) {
+            $existingStorage = StorageCapacity::where('total_capacity', $storage['total_capacity'])->first();
+
+            if (!$existingStorage) {
+                // Create the storage capacity if it doesn't exist
+                $createdStorage = StorageCapacity::create([
+                    'total_capacity' => $storage['total_capacity'],
+                ]);
+
+                ProductCapacity::create([
+                    'product_id' => $product->product_id,
+                    'storage_capacity_id' => $createdStorage->storage_capacity_id,
+                ]);
+            } else {
+                // Check if the product storage already exists for this product and storage capacity combination
+                $existingProductCapacity = ProductCapacity::where('product_id', $product->product_id)
+                                                        ->where('storage_capacity_id', $existingStorage->storage_capacity_id)
+                                                        ->first();
+
+                if (!$existingProductCapacity) {
+                    // If the product storage doesn't exist, create it
+                    ProductCapacity::create([
+                        'product_id' => $product->product_id,
+                        'storage_capacity_id' => $existingStorage->storage_capacity_id,
                     ]);
                 }
             }
@@ -259,7 +312,7 @@ class ProductController extends Controller
                 'product_name' => 'required|string|max:255',
             ]);
     
-            $products = Product::with('productColors')->where('product_name', 'like', '%' . $request->input('product_name') . '%')->where('product_status', '!=', 0)->get();
+            $products = Product::with('productColors')->with('productCapacity')->where('product_name', 'like', '%' . $request->input('product_name') . '%')->where('product_status', '!=', 0)->get();
     
             if ($products->isEmpty()) {
                 return response()->json(['message' => 'No products found for the given search query', 'data' => []]);
@@ -293,6 +346,7 @@ class ProductController extends Controller
                 $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
             })
             ->with('productColors')
+            ->with('productCapacity')
             ->paginate($perPage, ['*'], 'page', $currentPage);
 
             if ($products->isEmpty()) {
@@ -314,17 +368,20 @@ class ProductController extends Controller
     public function getProductDetail($product_id)
     {
         try {
-            $product = Product::with('productDetail')->with('productColors')->findOrFail($product_id);
+            $product = Product::with('productDetail')->with('productColors')->with('productCapacity')
+            ->findOrFail($product_id);
 
             if (!$product) {
                 return response()->json(['message' => 'Product not found'], 404);
             }
     
             $colors = Color::get();
+            $storage = StorageCapacity::get();
 
             $responseData = [
                 'data' => $product,
                 'colors' => $colors,
+                'storage' => $storage,
             ];
             return response()->json($responseData);
         } catch (\Exception $e) {
@@ -366,7 +423,7 @@ class ProductController extends Controller
     {
         try {
             // Retrieve the latest products without considering a specific category
-            $latestProducts = Product::with('productColors')->orderBy('created_at', 'desc')
+            $latestProducts = Product::with('productColors')->with('productCapacity')->orderBy('created_at', 'desc')
             ->whereHas('category', function ($query) {
                 $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
             })
@@ -386,7 +443,7 @@ class ProductController extends Controller
     public function getRandomEightProducts()
     {
         try {
-            $products = Product::with('productColors')->inRandomOrder()
+            $products = Product::with('productColors')->with('productCapacity')->inRandomOrder()
             ->whereHas('category', function ($query) {
                 $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
             })
@@ -406,7 +463,7 @@ class ProductController extends Controller
     public function getAllProductsExceptInactiveCategories()
     {
         $perPage = 16;
-        $products =  Product::with('productDetail')->with('productColors')->whereHas('category', function ($query) {
+        $products =  Product::with('productDetail')->with('productColors')->with('productCapacity')->whereHas('category', function ($query) {
             $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
         })->paginate($perPage);
 

@@ -15,6 +15,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\ProductColorController;
 use App\Http\Controllers\VnpayPaymentController;
+use App\Http\Controllers\ProductCapacityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,7 @@ Route::get('/products/related/{category_id}/{product_id}', [ProductController::c
 Route::get('/allproducts', [ProductController::class, 'getAllProductsExceptInactiveCategories']);
 Route::put('/products/updateStatus/{product}', [ProductController::class, 'updateProductStatus']);
 Route::delete('/products/color/{product_color}', [ProductColorController::class, 'destroy']);
+Route::delete('/products/capacity/{product_capacity}', [ProductCapacityController::class, 'destroy']);
 
 
 // Danh sách tất cả sliders
@@ -74,6 +76,7 @@ Route::get('/cart/{customer_id}', [CartController::class, 'getCartProducts']);
 Route::delete('/cart/customer/{customer_id}/product/{product_id}', [CartController::class, 'deleteProductFromCart']);
 Route::delete('/cart/customer/{customer_id}', [CartController::class, 'deleteAllProductsFromCart']);
 Route::put('/cart/customer/{customer_id}', [CartController::class, 'update']);
+Route::get('/cart/total/{customer_id}', [CartController::class, 'getCartTotalQuantity']);
 
 // Customer
 Route::post('/customer', [CustomerController::class, 'store']);
@@ -120,5 +123,6 @@ Route::put('/coupon/{coupon}', [CouponController::class, 'update']);
 Route::delete('/coupon/{coupon}', [CouponController::class, 'destroy']);
 Route::get('/allCoupon', [CouponController::class, 'getAllCouponInactive']);
 Route::get('/couponByCode', [CouponController::class, 'getCouponDiscountByCode']);
+Route::get('/randomCoupon', [CouponController::class, 'getRandomCoupon']);
 
 Route::post('/vnpay-payment', [VnpayPaymentController::class, 'createPayment']);
