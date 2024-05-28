@@ -44,6 +44,7 @@ class CouponController extends Controller
             'coupon_code' => 'required|string',
             'coupon_discount' => 'required|numeric',
             'coupon_expiry_date' => 'required|date',
+            'coupon_quantity' => 'required',
         ]);
 
         $coupon = Coupon::create($request->all());
@@ -86,6 +87,7 @@ class CouponController extends Controller
             'coupon_code' => 'required|string',
             'coupon_discount' => 'required|numeric',
             'coupon_expiry_date' => 'required|date',
+            'coupon_quantity' => 'required',
         ]);
 
         $coupon->update($request->all());
@@ -111,7 +113,8 @@ class CouponController extends Controller
         $perPage = 16;
         $currentDate = Carbon::now();
         
-        $coupons = Coupon::whereDate('coupon_expiry_date', '>', $currentDate)->paginate($perPage);
+        $coupons = Coupon::whereDate('coupon_expiry_date', '>', $currentDate)
+        ->where('coupon_quantity', '>', 0)->paginate($perPage);
 
         $responseData = [
             'data' => $coupons,
@@ -128,14 +131,19 @@ class CouponController extends Controller
 
         $coupon = Coupon::where('coupon_code', $couponCode)
                         ->whereDate('coupon_expiry_date', '>', $currentDate)
+                        ->where('coupon_quantity', '>', 0)
                         ->first();
 
         if ($coupon) {
-            return $coupon->coupon_discount;
+            // Trừ đi 1 ở cột quantity
+            $coupon->decrement('coupon_quantity', 1);
+
+            return response()->json($coupon->coupon_discount);
         } else {
-            return [];
+            return response()->json(['message' => 'Coupon is invalid or expired'], 404);
         }
     }
+
 
     public function getRandomCoupon()
     {

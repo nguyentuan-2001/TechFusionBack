@@ -9,7 +9,7 @@ class Coupon extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['coupon_code','coupon_discount','coupon_expiry_date'];
+    protected $fillable = ['coupon_code','coupon_discount','coupon_expiry_date', 'coupon_quantity'];
     protected $primaryKey = 'coupon_id';
     protected $table = 'coupon';
 

@@ -18,7 +18,7 @@ class CustomerController extends Controller
     public function index()
     {
         $perPage = 16;
-        $customer = Customers::select('customer_id', 'customer_fullname','customer_phone')->paginate($perPage);
+        $customer = Customers::select('customer_id', 'customer_fullname','customer_phone','customer_address')->paginate($perPage);
         return response()->json($customer);
     }
     /**
@@ -66,6 +66,7 @@ class CustomerController extends Controller
             'data' => [
                 'customer' => $customer,
                 'access_token' => $token,
+                'customer_id' => $customer->customer_id,
             ],
         ], 201);
     }
@@ -104,6 +105,7 @@ class CustomerController extends Controller
             'customer_phone' => 'nullable|numeric',
             'customer_fullname' => 'nullable|string',
             'customer_image' => 'nullable|string',
+            'customer_address' => 'nullable|string',
         ]);
         if (!$customer) {
             return response()->json(['message' => 'Customer not found'], 404);
@@ -115,6 +117,7 @@ class CustomerController extends Controller
                 'customer_phone' => $request->input('customer_phone') ?? null,
                 'customer_fullname' => $request->input('customer_fullname') ?? null,
                 'customer_image' => $request->input('customer_image') ?? null,
+                'customer_address' => $request->input('customer_address') ?? null,
             ]);
             return response()->json(['message' => 'Customer updated successfully', 'data' => $customer]);
         } catch (\Exception $e) {
@@ -170,7 +173,7 @@ class CustomerController extends Controller
     }
     public function getCustomerDetail($customerId)
     {
-        $customer = Customers::select('customer_id', 'customer_name','customer_phone','customer_fullname', 'customer_image')->find($customerId);
+        $customer = Customers::select('customer_id', 'customer_name','customer_phone','customer_fullname', 'customer_image','customer_address')->find($customerId);
         if ($customer) {
             return response()->json($customer);
         } else {

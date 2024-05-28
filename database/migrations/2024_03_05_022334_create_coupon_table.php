@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('coupon_code');
             $table->double('coupon_discount');
             $table->date('coupon_expiry_date');
+            $table->integer('coupon_quantity');
             $table->timestamps();
         });
     }

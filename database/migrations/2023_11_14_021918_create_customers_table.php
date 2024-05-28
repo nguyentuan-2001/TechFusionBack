@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('customer_fullname')->nullable();
             $table->string('customer_image')->nullable();
             $table->integer('customer_phone')->nullable();
+            $table->string('customer_address')->nullable();
             $table->string('customer_token')->nullable();
             $table->timestamps();
         });
