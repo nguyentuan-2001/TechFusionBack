@@ -24,7 +24,7 @@ class ProductController extends Controller
         // lấy all
         // $products = Product::with('productDetail')->get();
         // return response()->json($products);
-        $perPage = 16;
+        $perPage = 50;
         $products = Product::paginate($perPage);
         $responseData = [
             'data' => $products,
@@ -335,7 +335,7 @@ class ProductController extends Controller
                 return response()->json(['message' => 'Category not found'], 404);
             }
 
-            $perPage = $request->input('perPage', 16); // Sử dụng giá trị mặc định là 16 nếu không có giá trị
+            $perPage = $request->input('perPage', 50); // Sử dụng giá trị mặc định là 16 nếu không có giá trị
 
             // Lấy trang hiện tại từ tham số 'page' trong URL, mặc định là 1 nếu không có
             $currentPage = $request->input('page', 1);
@@ -462,7 +462,7 @@ class ProductController extends Controller
 
     public function getAllProductsExceptInactiveCategories()
     {
-        $perPage = 16;
+        $perPage = 50;
         $products =  Product::with('productDetail')->with('productColors')->with('productCapacity')->whereHas('category', function ($query) {
             $query->where('category_status', '!=', 0)->where('product_status', '!=', 0);
         })->paginate($perPage);

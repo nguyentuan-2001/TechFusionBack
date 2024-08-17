@@ -12,6 +12,7 @@ class VnpayPaymentController extends Controller
         $total = $request->input('total');
         $fee = $request->input('fee');
         $orderID= $request->input('order_id');
+        $USDToVND=2500;
 
         // Các thông tin khác để tạo yêu cầu thanh toán
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
@@ -21,7 +22,7 @@ class VnpayPaymentController extends Controller
         $vnp_TxnRef = rand(00,9999);
         $vnp_OrderInfo = 'Thanh toán đơn hàng';
         $vnp_OrderType = 'billpayment';
-        $vnp_Amount = ($total + $fee) * 100;
+        $vnp_Amount = ($total* $USDToVND + $fee) * 100;
         $vnp_Locale = 'vn';
         $vnp_BankCode = 'NCB';
         $vnp_IpAddr = $request->ip();
